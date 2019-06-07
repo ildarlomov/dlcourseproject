@@ -7,6 +7,8 @@ solution for machines can see competition
 
 1. run eval.py to get descriptors for all referenced video track sequences
 
+### How to run eval
+ `$ make run_eval` or `$ ./run.sh`
 
 
 Project Organization

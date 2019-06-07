@@ -80,6 +80,8 @@ test_environment:
 # PROJECT RULES                                                                 #
 #################################################################################
 
+run_eval:
+	./run.sh data/raw/train_df.csv data/raw/train_df_track_order_df.csv data/raw/train_df_descriptors.npy models/baseline/agg_descriptors.npy
 
 
 #################################################################################
