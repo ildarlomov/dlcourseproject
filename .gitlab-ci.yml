@@ -1,0 +1,16 @@
+stages:
+  - eval
+
+Eval:
+  stage: eval
+  image: registry.gitlab.com/mcs2019/compute-base
+  tags:
+    - nvidia
+  script:
+    - run-ci
+  only:
+    - leaderboard
+  artifacts:
+    paths:
+      - request.json
+    expire_in: 1 year
