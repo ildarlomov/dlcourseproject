@@ -8,5 +8,7 @@ class ToTensor(object):
         # swap color axis because
         # numpy image: H x W x C
         # torch image: C X H X W
-        to_torch_tensor = lambda img: torch.from_numpy(img.transpose((2, 0, 1)))
+        def to_torch_tensor(img):
+            return torch.from_numpy(img.transpose((2, 0, 1)))
+
         return {k: to_torch_tensor(v) for k, v in sample.items()}
