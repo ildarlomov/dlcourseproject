@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, utils
-from preprocessing import ToTensor
+from src.data.baseline_transformers import ToTensor
 from tqdm import tqdm
 # Ignore warnings
 import warnings
