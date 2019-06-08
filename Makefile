@@ -98,6 +98,11 @@ push_reqs:
 	git add requirements.txt
 	git commit -m 'fix reqs.txt'
 	git push
+
+run_train:
+	pip install -e .
+	python run_train.py
+
 #run_get_scores:
 #	python get_scores.py \
 #	--predicted_descr_path=models/baseline/train_df_agg_descriptors.npy \
