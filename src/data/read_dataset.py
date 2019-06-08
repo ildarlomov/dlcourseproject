@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, utils
+from src.data.preprocessing import ToTensor
 from tqdm import tqdm
 # Ignore warnings
 import warnings
@@ -69,13 +70,13 @@ def check_data_iteration():
                          gt_csv='../../data/raw/train_gt_df.csv',
                          root_dir='../../data/raw/data',
                          is_val=is_val,
-                         transform=None)
+                         transform=ToTensor())
 
     print(f"Total triples in {'test' if is_val else 'train'} dataset is {len(dataset)}")
 
     for i in range(len(dataset)):
         sample = dataset[i]
-        print(sample['track_image'])
+        # print(sample['track_image'])
 
         print(i, sample['track_image'].size(), sample['pos_image'].size(), sample['neg_image'].size())
 
