@@ -32,7 +32,8 @@ if __name__ == "__main__":
     loaders = {"train": train_dl, "dev": dev_dl}
 
     # model, criterion, optimizer
-    model = ResNetCaffe([1, 2, 5, 3], BasicBlock, pretrained=True)
+    # todo: we have an option to use pretrained weights
+    model = ResNetCaffe([1, 2, 5, 3], BasicBlock, pretrained=False)
     tnet = TripletNet(model)
     criterion = torch.nn.MarginRankingLoss(margin=1.0)
     optimizer = torch.optim.Adam(model.parameters())
