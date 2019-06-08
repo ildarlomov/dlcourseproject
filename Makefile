@@ -100,6 +100,66 @@ run_get_scores:
 #	--gt_descriptors_path=data/raw/train_gt_descriptors.npy
 
 #################################################################################
+# Jupyter notebook launche                                                      #
+#################################################################################
+
+new_research:
+	cp prod Pipfile & pipenv install
+
+update_prod_env:
+	cp reseach_pipenv from $(taskid) to prod_pipenv
+
+
+PROJECT_DIR=$(shell pwd)
+
+#USER=$(shell whoami)
+#USERG=$(id -g $USER)
+NOTEBOOK_IMAGE=project_epsilon
+CONTAINER_NAME=ildar-ai
+USER_UID=$(shell id -u)
+USER_GID=$(shell id -g)
+USER_NAME=$(shell echo $(USER))
+VOLUME_DIR=/home/$(USER_NAME)/playground/ai
+
+ifndef PORT
+    PORT=5000
+endif
+
+ifndef NOTEBOOK_PORT
+    NOTEBOOK_PORT=1713
+endif
+
+pyclean:
+	find . | grep -E "(__pycache__|\.pyc|\.pyo)" | xargs rm -rf
+
+clean-build:
+	rm --force --recursive build/
+	rm --force --recursive dist/
+	rm --force --recursive *.egg-info
+
+get_reqs_dev:
+	pipenv install
+	pipenv lock -r > requirements.txt
+	pipenv lock -r --dev >> requirements.txt
+
+notebook-gpu-it:
+	echo "Launching notebook http://research.ostrovok.in:$(NOTEBOOK_PORT)"
+	nvidia-docker run -it --privileged -e CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 --rm -p $(NOTEBOOK_PORT):8888 -v $(PROJECT_DIR):$(VOLUME_DIR) --name $(CONTAINER_NAME) --user=root \
+    -e NB_USER=$(USER_NAME) \
+    -e NB_UID=$(USER_UID) \
+    -e NB_GID=$(USER_GID) \
+    -e GRANT_SUDO=yes \
+    -e CHOWN_HOME=yes \
+    $(NOTEBOOK_IMAGE) bash
+
+test: pyclean
+	pytest tests/
+
+run_server:
+	FLASK_APP=fnb/api/app.py flask run --reload
+
+.PHONY: pyclean clean-build notebook lab test run_server
+#################################################################################
 # Self Documenting Commands                                                     #
 #################################################################################
 

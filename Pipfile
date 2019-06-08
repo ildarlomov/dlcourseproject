@@ -6,7 +6,7 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-src = {editable = true,file = "file:///Users/ildar.lomov/playground/ai"}
+src = {editable = true,file = "file:///home/ildar.lomov/playground/ai"}
 click = "*"
 coverage = "*"
 awscli = "*"
@@ -14,6 +14,7 @@ flake8 = "*"
 python-dotenv = ">=0.5.1"
 Sphinx = "*"
 scikit-learn = "*"
+catalyst = "*"
 
 [requires]
 python_version = "3.7"
