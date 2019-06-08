@@ -93,6 +93,11 @@ run_get_scores:
 
 freeze:
 	pip freeze > requirements.txt
+
+push_reqs: freeze
+	git add requirements.txt
+	git commit -m 'fix reqs.txt'
+	git push
 #run_get_scores:
 #	python get_scores.py \
 #	--predicted_descr_path=models/baseline/train_df_agg_descriptors.npy \
