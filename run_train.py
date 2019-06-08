@@ -1,10 +1,10 @@
 import torch
 from catalyst.dl.experiments import SupervisedRunner
-from src.models.resnet_cafee import ResNetCaffe, BasicBlock
 from src.data.read_dataset import MCSDataset
 from src.data.preprocessing import ToTensor
 from torch.utils.data.dataloader import DataLoader
 from src.models.triplet import TripletNet
+from src.models.baseline_net import ResNetCaffe, BasicBlock
 
 if __name__ == "__main__":
     # experiment setup
