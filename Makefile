@@ -115,6 +115,7 @@ PROJECT_DIR=$(shell pwd)
 #USER=$(shell whoami)
 #USERG=$(id -g $USER)
 NOTEBOOK_IMAGE=project_epsilon
+HOROVOD_IMAGE=horovod:latest
 CONTAINER_NAME=ildar-ai
 USER_UID=$(shell id -u)
 USER_GID=$(shell id -g)
@@ -151,6 +152,11 @@ notebook-gpu-it:
     -e GRANT_SUDO=yes \
     -e CHOWN_HOME=yes \
     $(NOTEBOOK_IMAGE) bash
+
+gpu-it:
+	nvidia-docker run -it --privileged -e CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 --rm  -v $(PROJECT_DIR):$(VOLUME_DIR) --name $(CONTAINER_NAME) --user=root \
+    $(HOROVOD_IMAGE) bash
+
 
 test: pyclean
 	pytest tests/
