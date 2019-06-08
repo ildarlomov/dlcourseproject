@@ -81,8 +81,23 @@ test_environment:
 #################################################################################
 
 run_eval:
-	./run.sh data/raw/train_df.csv data/raw/train_df_track_order_df.csv data/raw/train_df_descriptors.npy models/baseline/agg_descriptors.npy
+#	./run.sh data/raw/train_df.csv data/raw/train_df_track_order_df.csv data/raw/train_df_descriptors.npy models/baseline/agg_descriptors.npy
+	./run.sh
 
+run_get_scores:
+	python get_scores.py \
+	models/baseline/train_df_agg_descriptors.npy \
+	data/raw/train_df_track_order_df.csv \
+	data/raw/train_gt_df.csv \
+	data/raw/train_gt_descriptors.npy
+
+
+#run_get_scores:
+#	python get_scores.py \
+#	--predicted_descr_path=models/baseline/train_df_agg_descriptors.npy \
+#	--test_track_order_path=data/raw/train_df_track_order_df.csv \
+#	--test_gt_df_path=data/raw/train_gt_df.csv \
+#	--gt_descriptors_path=data/raw/train_gt_descriptors.npy
 
 #################################################################################
 # Self Documenting Commands                                                     #

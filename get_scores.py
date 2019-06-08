@@ -46,14 +46,14 @@ def main(conf):
     else:
         needed_tpr = tpr_filtered[-1]
 
-    print('score 1 (tpr@fpr=1e-6): {0:.4f} score 2 (mean distance): {1:.4f}'.format(needed_tpr, mean_dist))
+    print('score 1 (tpr@fpr=1e-6): {0:.4f} score 2 (mean distance): {1:.4f}'.format(needed_tpr, mean_positive_dist))
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Inference by list')
-    parser.add_argument('--predicted_descr_path', type=str, help='Path to predicted agg_descriptors.npy file')
-    parser.add_argument('--test_track_order_path', type=str, help='Path to test_track_order.csv file')
-    parser.add_argument('--test_gt_df_path', type=str, help='Path to test_gt_df.csv file')
-    parser.add_argument('--gt_descriptors_path', type=str, help='Path to gt_descriptors.npy file')
+    parser.add_argument('predicted_descr_path', type=str, help='Path to predicted agg_descriptors.npy file')
+    parser.add_argument('test_track_order_df', type=str, help='Path to test_track_order.csv file')
+    parser.add_argument('test_gt_df_path', type=str, help='Path to test_gt_df.csv file')
+    parser.add_argument('gt_descriptors_path', type=str, help='Path to gt_descriptors.npy file')
     conf = parser.parse_args()
     main(conf)
