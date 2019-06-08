@@ -75,6 +75,7 @@ def check_data_iteration():
 
     for i in range(len(dataset)):
         sample = dataset[i]
+        print(sample['track_image'])
 
         print(i, sample['track_image'].size(), sample['pos_image'].size(), sample['neg_image'].size())
 
@@ -83,4 +84,6 @@ def check_data_iteration():
 
 
 if __name__ == '__main__':
+    # example usage
+    # python -i read_dataset.py check_data_iteration
     check_data_iteration()
