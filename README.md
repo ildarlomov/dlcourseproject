@@ -9,6 +9,17 @@ solution for machines can see competition
 
 ### How to run eval
  `$ make run_eval` or `$ ./run.sh`
+ 
+### Notes for horovod image:
+
+1. Install via pip from requirements directly
+2. Replace default python with py36 in horovod image by adding extra repository
+
+```
+apt-get update
+apt-get install -y libsm6 libxext6 libxrender-dev
+pip install opencv-python
+```
 
 
 Project Organization

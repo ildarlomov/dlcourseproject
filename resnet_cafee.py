@@ -9,21 +9,24 @@ model_url = 'http://mcs2019-competition.visionlabs.ru/resnet_caffe_weights.pth'
 use_relu = False
 use_bn = True
 
+
 def conv3x3(in_planes, out_planes, stride=1):
     "3x3 convolution with padding"
     global use_bn
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
                      padding=1, bias=not use_bn)
 
+
 def calculate_scale(data):
     if data.dim() == 2:
         scale = math.sqrt(3 / data.size(1))
     else:
         scale = math.sqrt(3 /
-        (data.size(1) *
-        data.size(2) *
-        data.size(3)))
+                          (data.size(1) *
+                           data.size(2) *
+                           data.size(3)))
     return scale
+
 
 class BasicBlock(nn.Module):
     expansion = 1
@@ -40,7 +43,7 @@ class BasicBlock(nn.Module):
         if self.use_bn:
             self.bn1 = nn.BatchNorm2d(planes)
         if use_relu:
-            self.relu1 = nn.ReLU(inplace = True)
+            self.relu1 = nn.ReLU(inplace=True)
         else:
             self.relu1 = nn.PReLU(planes)
         self.conv2 = conv3x3(planes, planes)
@@ -51,7 +54,7 @@ class BasicBlock(nn.Module):
         if self.use_bn:
             self.bn2 = nn.BatchNorm2d(planes)
         if use_relu:
-            self.relu2 = nn.ReLU(inplace = True)
+            self.relu2 = nn.ReLU(inplace=True)
         else:
             self.relu2 = nn.PReLU(planes)
         self.downsample = downsample
@@ -82,7 +85,8 @@ class ResNetCaffe(nn.Module):
     '''
     Provided architecture and weigths for the Video Face Recognition Challenge@MCS2019
     '''
-    def __init__(self, layers, block=None, k = 1, use_relu_ = False, use_bn_ = True, pretrained=False):
+
+    def __init__(self, layers, block=None, k=1, use_relu_=False, use_bn_=True, pretrained=False):
         global use_relu
         use_relu = use_relu_
         global use_bn
@@ -100,7 +104,7 @@ class ResNetCaffe(nn.Module):
         if self.use_bn:
             self.bn1 = nn.BatchNorm2d(round(32 * k))
         if use_relu:
-            self.relu = nn.ReLU(inplace = True)
+            self.relu = nn.ReLU(inplace=True)
         else:
             self.relu = nn.PReLU(round(32 * k))
 
@@ -109,7 +113,7 @@ class ResNetCaffe(nn.Module):
         self.layer2 = self._make_layer(block, round(128 * k), layers[1], stride=2)
         self.layer3 = self._make_layer(block, round(256 * k), layers[2], stride=2)
         self.layer4 = self._make_layer(block, round(512 * k), layers[3], stride=2)
-        self.fc = nn.Linear(round(12800 * k), 512, bias = True)
+        self.fc = nn.Linear(round(12800 * k), 512, bias=True)
 
         scale = calculate_scale(self.fc.weight.data)
         torch.nn.init.uniform_(self.fc.weight.data, -scale, scale)
@@ -133,7 +137,7 @@ class ResNetCaffe(nn.Module):
         if self.use_bn:
             layers.append(nn.BatchNorm2d(planes))
         if use_relu:
-            layers.append(nn.ReLU(inplace = True))
+            layers.append(nn.ReLU(inplace=True))
         else:
             layers.append(nn.PReLU(planes))
         layers.append(nn.MaxPool2d(kernel_size=2, stride=2, padding=0))
@@ -160,8 +164,8 @@ class ResNetCaffe(nn.Module):
 
         return x
 
+
 def test():
-    model = ResNetCaffe( [1, 2, 5, 3], BasicBlock, pretrained=True)
+    model = ResNetCaffe([1, 2, 5, 3], BasicBlock, pretrained=True)
     test_tensor = torch.rand(2, 3, 112, 112)
     print(model(test_tensor).size())
-
