@@ -154,7 +154,7 @@ notebook-gpu-it:
     $(NOTEBOOK_IMAGE) bash
 
 gpu-it:
-	nvidia-docker run -it --privileged -e CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 --rm  -v $(PROJECT_DIR):$(VOLUME_DIR) --name $(CONTAINER_NAME) --user=root \
+	nvidia-docker run -it --workdir=$(VOLUME_DIR) --privileged -e CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 --rm  -v $(PROJECT_DIR):$(VOLUME_DIR) --name $(CONTAINER_NAME) --user=root \
     $(HOROVOD_IMAGE) bash
 
 
