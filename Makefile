@@ -91,7 +91,8 @@ run_get_scores:
 	data/raw/train_gt_df.csv \
 	data/raw/train_gt_descriptors.npy
 
-
+freeze:
+	pip freeze > requirements.txt
 #run_get_scores:
 #	python get_scores.py \
 #	--predicted_descr_path=models/baseline/train_df_agg_descriptors.npy \
@@ -100,7 +101,7 @@ run_get_scores:
 #	--gt_descriptors_path=data/raw/train_gt_descriptors.npy
 
 #################################################################################
-# Jupyter notebook launche                                                      #
+# Jupyter notebook launch                                                       #
 #################################################################################
 
 new_research:
