@@ -94,7 +94,7 @@ run_get_scores:
 freeze:
 	pip freeze > requirements.txt
 
-push_reqs: freeze
+push_reqs:
 	git add requirements.txt
 	git commit -m 'fix reqs.txt'
 	git push
