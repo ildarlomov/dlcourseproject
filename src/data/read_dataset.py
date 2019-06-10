@@ -57,6 +57,8 @@ class MCSDataset(Dataset):
         if self.transform:
             sample = self.transform(sample)
 
+        target = torch.from_numpy(np.array([1.0], dtype=np.float32))
+        sample['targets'] = target
         return sample
 
 
