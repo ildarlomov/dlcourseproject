@@ -10,8 +10,8 @@ from src.catalyst_hacks.triplet_runner import TripletRunner, TripletLossCallback
 if __name__ == "__main__":
     # experiment setup
     # todo: add automatic experiment naming incrementation
-    logdir = "./models/baseline/logs/exp1"
-    num_epochs = 42
+    logdir = "./models/baseline/logs/exp2"
+    num_epochs = 150
 
     # data
     train_ds = MCSDataset(tracks_df_csv='data/raw/train_df.csv',
