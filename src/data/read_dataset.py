@@ -63,7 +63,9 @@ class MCSDataset(Dataset):
 class FakeMCSDataset(Dataset):
 
     def __init__(self, tracks_df_csv, order_df_csv, gt_csv, root_dir, is_val=False, transform=None):
-        self.samples = [(np.random.randn(112, 112, 3), np.random.randn(112, 112, 3), np.random.randn(3, 112, 112)) for _
+        self.samples = [(np.random.randn(112, 112, 3).astype(np.float32),
+                         np.random.randn(112, 112, 3).astype(np.float32),
+                         np.random.randn(112, 112, 3).astype(np.float32)) for _
                         in range(100)]
         self.transform = transform
 
