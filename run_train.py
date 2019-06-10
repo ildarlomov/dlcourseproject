@@ -14,14 +14,14 @@ if __name__ == "__main__":
     num_epochs = 42
 
     # data
-    train_ds = FakeMCSDataset(tracks_df_csv='data/raw/train_df.csv',
+    train_ds = MCSDataset(tracks_df_csv='data/raw/train_df.csv',
                               order_df_csv='data/raw/train_df_track_order_df.csv',
                               gt_csv='data/raw/train_gt_df.csv',
                               root_dir='data/raw/data',
                               is_val=False,
                               transform=ToTensor())
 
-    dev_ds = FakeMCSDataset(tracks_df_csv='data/raw/train_df.csv',
+    dev_ds = MCSDataset(tracks_df_csv='data/raw/train_df.csv',
                             order_df_csv='data/raw/train_df_track_order_df.csv',
                             gt_csv='data/raw/train_gt_df.csv',
                             root_dir='data/raw/data',
