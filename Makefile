@@ -101,7 +101,13 @@ push_reqs:
 
 run_train:
 	pip install -e .
-	python run_train.py
+	CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python run_train.py
+
+run_train_1:
+	pip install -e .
+	CUDA_VISIBLE_DEVICES=0 python run_train.py
+
+
 
 #run_get_scores:
 #	python get_scores.py \
