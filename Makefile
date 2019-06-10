@@ -107,6 +107,10 @@ run_train_1:
 	pip install -e .
 	CUDA_VISIBLE_DEVICES=0 python run_train.py
 
+run_tb:
+	CUDA_VISIBLE_DEVICE="" tensorboard --logdir=./models/baseline/logs/exp1
+
+
 
 
 #run_get_scores:
