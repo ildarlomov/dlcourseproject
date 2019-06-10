@@ -4,17 +4,18 @@ from typing import Any, Mapping, Dict, List, Union
 from catalyst.dl.callbacks.core import Callback
 from torch import FloatTensor
 from catalyst.dl.callbacks.base import OptimizerCallback, SchedulerCallback, CheckpointCallback
+from torch import is_tensor
 
 
 class TripletLossCallback(Callback):
     def __init__(
-        self,
-        input_key: str = "targets",
-        output_key: str = "logits",
-        prefix: str = "loss",
-        criterion_key: str = None,
-        loss_key: str = None,
-        multiplier: float = 1.0
+            self,
+            input_key: str = "targets",
+            output_key: str = "logits",
+            prefix: str = "loss",
+            criterion_key: str = None,
+            loss_key: str = None,
+            multiplier: float = 1.0
     ):
         self.input_key = input_key
         self.output_key = output_key
@@ -40,11 +41,10 @@ class TripletLossCallback(Callback):
                 state.loss = {self.loss_key: loss}
 
     def _compute_loss(self, state, criterion):
-        targets = FloatTensor(state.output[self.output_key][0].size()).fill_(1)
         loss = criterion(
             state.output[self.output_key][0],
             state.output[self.output_key][1],
-            targets
+            state.input[self.input_key]
         )
         return loss
 
@@ -87,6 +87,7 @@ class TripletRunExperiment(BaseExperiment):
 
 class TripletRunner(SupervisedRunner):
     _default_experiment = TripletRunExperiment
+
     def __init__(self, achor_key, pos_key, neg_key, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.achor_key = achor_key
@@ -105,9 +106,16 @@ class TripletRunner(SupervisedRunner):
             output = {self.output_key: output}
         return output
 
+    # def _batch2device(self, batch: Mapping[str, Any], device):
+    #     if isinstance(batch, (tuple, list)):
+    #         assert len(batch) == 2
+    #         batch = {self.input_key: batch[0], self.target_key: batch[1]}
+    #     batch = super()._batch2device(batch, device)
+    #     return batch
+
     def _batch2device(self, batch: Mapping[str, Any], device):
-        if isinstance(batch, (tuple, list)):
-            assert len(batch) == 2
-            batch = {self.input_key: batch[0], self.target_key: batch[1]}
-        batch = super()._batch2device(batch, device)
-        return batch
+        res = {
+            key: value.to(device) if is_tensor(value) else value
+            for key, value in batch.items()
+        }
+        return res

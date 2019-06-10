@@ -74,12 +74,14 @@ class FakeMCSDataset(Dataset):
 
     def __getitem__(self, idx):
         track_image, pos_image, neg_image = self.samples[idx]
+        target = torch.from_numpy(np.array([1.0], dtype=np.float32))
 
         sample = {'track_image': track_image, 'pos_image': pos_image, 'neg_image': neg_image}
 
         if self.transform:
             sample = self.transform(sample)
 
+        sample['targets'] = target
         return sample
 
 
