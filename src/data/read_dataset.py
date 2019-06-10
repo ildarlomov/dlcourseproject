@@ -28,7 +28,6 @@ class MCSDataset(Dataset):
         self.samples = list()
         for person_id in tqdm(np.unique(self.tracks_df.person_id.values)):
             for track_id, person_tracks_df in self.tracks_df[self.tracks_df.person_id == person_id].groupby('track_id'):
-
                 sampled_track_image_path = person_tracks_df.sample(1).warp_path.values[0]
                 sampled_pos_image_path = self.gt_df[self.gt_df.person_id == person_id].sample(1).warp_path.values[0]
                 sampled_neg_image_path = self.gt_df[self.gt_df.person_id != person_id].sample(1).warp_path.values[0]
@@ -61,16 +60,38 @@ class MCSDataset(Dataset):
         return sample
 
 
+class FakeMCSDataset(Dataset):
+
+    def __init__(self, tracks_df_csv, order_df_csv, gt_csv, root_dir, is_val=False, transform=None):
+        self.samples = [(np.random.randn(112, 112, 3), np.random.randn(112, 112, 3), np.random.randn(3, 112, 112)) for _
+                        in range(100)]
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.samples)
+
+    def __getitem__(self, idx):
+        track_image, pos_image, neg_image = self.samples[idx]
+
+        sample = {'track_image': track_image, 'pos_image': pos_image, 'neg_image': neg_image}
+
+        if self.transform:
+            sample = self.transform(sample)
+
+        return sample
+
+
 # we are going to do train dataset and test dataset separately
 
 def check_data_iteration():
     is_val = False
-    dataset = MCSDataset(tracks_df_csv='../../data/raw/train_df.csv',
-                         order_df_csv='../../data/raw/train_df_track_order_df.csv',
-                         gt_csv='../../data/raw/train_gt_df.csv',
-                         root_dir='../../data/raw/data',
-                         is_val=is_val,
-                         transform=ToTensor())
+    # U may use MCSDataset for the training
+    dataset = FakeMCSDataset(tracks_df_csv='../../data/raw/train_df.csv',
+                             order_df_csv='../../data/raw/train_df_track_order_df.csv',
+                             gt_csv='../../data/raw/train_gt_df.csv',
+                             root_dir='../../data/raw/data',
+                             is_val=is_val,
+                             transform=ToTensor())
 
     print(f"Total triples in {'test' if is_val else 'train'} dataset is {len(dataset)}")
 

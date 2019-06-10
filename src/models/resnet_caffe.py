@@ -9,6 +9,7 @@ model_url = 'http://mcs2019-competition.visionlabs.ru/resnet_caffe_weights.pth'
 use_relu = False
 use_bn = True
 
+# todo: WHAT IS FUCKING WRONG WITH THIS FILE???
 
 def conv3x3(in_planes, out_planes, stride=1):
     "3x3 convolution with padding"
