@@ -26,6 +26,7 @@ class MCSDataset(Dataset):
         self.tracks_df = self.tracks_df[self.tracks_df.is_val == is_val]
 
         self.samples = list()
+        # 1 triplet sample for one person
         for person_id in tqdm(np.unique(self.tracks_df.person_id.values)):
             for track_id, person_tracks_df in self.tracks_df[self.tracks_df.person_id == person_id].groupby('track_id'):
                 sampled_track_image_path = person_tracks_df.sample(1).warp_path.values[0]
