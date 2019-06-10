@@ -48,9 +48,9 @@ class MCSDataset(Dataset):
         pos_image_path = os.path.join(self.root_dir, pos_image_path)
         neg_image_path = os.path.join(self.root_dir, neg_image_path)
 
-        track_image = io.imread(track_image_path)
-        pos_image = io.imread(pos_image_path)
-        neg_image = io.imread(neg_image_path)
+        track_image = io.imread(track_image_path).astype(np.float32)
+        pos_image = io.imread(pos_image_path).astype(np.float32)
+        neg_image = io.imread(neg_image_path).astype(np.float32)
 
         sample = {'track_image': track_image, 'pos_image': pos_image, 'neg_image': neg_image}
 
