@@ -6,27 +6,39 @@ from torch.utils.data.dataloader import DataLoader
 from src.models.triplet import TripletNet
 from src.models.baseline_net import ResNetCaffe, BasicBlock
 from src.catalyst_hacks.triplet_runner import TripletRunner, TripletLossCallback, MCSMetricsCallback
+from pathlib import Path
+from functools import reduce
+
+
+def get_new_logpath(logs_path: str) -> str:
+    p = Path(logs_path)
+    max_exp = reduce(lambda x, y: max(int(x.name), int(y.name)), p.iterdir())
+    return str(p / str(max_exp + 1))
+
 
 if __name__ == "__main__":
     # experiment setup
     # todo: add automatic experiment naming incrementation
-    logdir = "./models/baseline/logs/exp2"
+    base_logdir = "./models/baseline/logs"
+
+    logdir = get_new_logpath(base_logdir)
+
     num_epochs = 150
 
     # data
     train_ds = MCSDataset(tracks_df_csv='data/raw/train_df.csv',
-                              order_df_csv='data/raw/train_df_track_order_df.csv',
-                              gt_csv='data/raw/train_gt_df.csv',
-                              root_dir='data/raw/data',
-                              is_val=False,
-                              transform=ToTensor())
+                          order_df_csv='data/raw/train_df_track_order_df.csv',
+                          gt_csv='data/raw/train_gt_df.csv',
+                          root_dir='data/raw/data',
+                          is_val=False,
+                          transform=ToTensor())
 
     dev_ds = MCSDataset(tracks_df_csv='data/raw/train_df.csv',
-                            order_df_csv='data/raw/train_df_track_order_df.csv',
-                            gt_csv='data/raw/train_gt_df.csv',
-                            root_dir='data/raw/data',
-                            is_val=True,
-                            transform=ToTensor())
+                        order_df_csv='data/raw/train_df_track_order_df.csv',
+                        gt_csv='data/raw/train_gt_df.csv',
+                        root_dir='data/raw/data',
+                        is_val=True,
+                        transform=ToTensor())
 
     train_dl = DataLoader(train_ds, batch_size=32, shuffle=True, num_workers=4)
     dev_dl = DataLoader(dev_ds, batch_size=32, shuffle=False, num_workers=4)
