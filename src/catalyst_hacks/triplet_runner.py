@@ -173,8 +173,8 @@ class MCSMetricsCallback(Callback):
 
     def on_batch_end(self, state):
         # todo: check if normalized
-        dist_pos = state.output[self.output_key][0].detach().numpy()
-        dist_neg = state.output[self.output_key][1].detach().numpy()
+        dist_pos = state.output[self.output_key][0].detach().cpu().numpy()
+        dist_neg = state.output[self.output_key][1].detach().cpu().numpy()
         pos_labels = np.ones(dist_pos.shape[0])
         neg_labels = np.zeros(dist_pos.shape[0])
         self.buff_with_batch_scores.append((dist_pos, pos_labels))
