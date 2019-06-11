@@ -13,11 +13,7 @@ from functools import reduce
 def get_new_logpath(logs_path: str) -> str:
     p = Path(logs_path)
     dirs_in_basepath = list(f for f in p.iterdir() if f.is_dir())
-    if len(dirs_in_basepath):
-        max_exp = reduce(lambda x, y: max(int(x.name), int(y.name)), dirs_in_basepath)
-    else:
-        max_exp = 0
-    return str(p / str(max_exp + 1))
+    return str(p / str(len(dirs_in_basepath) + 1))
 
 
 if __name__ == "__main__":
