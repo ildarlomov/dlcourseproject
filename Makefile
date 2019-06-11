@@ -122,6 +122,9 @@ gs:
 gcp:
 	git commit && git push
 
+find-done-commit:
+	git log | grep -C 10  @done-commit
+
 
 
 
