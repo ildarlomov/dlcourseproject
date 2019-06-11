@@ -43,7 +43,7 @@ if __name__ == "__main__":
     mcs_metrics_callback = MCSMetricsCallback()
 
     # model runner
-    runner = TripletRunner(achor_key='track_image', pos_key='pos_image', neg_key='neg_image', main_metric="TPR@FPR=1e-06")
+    runner = TripletRunner(achor_key='track_image', pos_key='pos_image', neg_key='neg_image')
 
     # model training
     runner.train(
@@ -56,5 +56,6 @@ if __name__ == "__main__":
         logdir=logdir,
         num_epochs=num_epochs,
         verbose=True,
-        valid_loader='dev'
+        valid_loader='dev',
+        main_metric="TPR@FPR=1e-06"
     )

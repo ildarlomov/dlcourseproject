@@ -90,12 +90,11 @@ class TripletRunExperiment(BaseExperiment):
 class TripletRunner(SupervisedRunner):
     _default_experiment = TripletRunExperiment
 
-    def __init__(self, achor_key, pos_key, neg_key, main_metric, *args, **kwargs):
+    def __init__(self, achor_key, pos_key, neg_key, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.achor_key = achor_key
         self.pos_key = pos_key
         self.neg_key = neg_key
-        self.state.main_metric = main_metric
 
     def predict_batch(self, batch: Mapping[str, Any]):
         output = self.model(batch[self.achor_key], batch[self.pos_key], batch[self.neg_key])
