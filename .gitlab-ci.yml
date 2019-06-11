@@ -3,7 +3,7 @@ stages:
 
 Eval:
   stage: eval
-  image: registry.gitlab.com/mcs2019/compute-base
+  image: registry.gitlab.com/mcs2019/compute-base:python3.6
   tags:
     - nvidia
   script:

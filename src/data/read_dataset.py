@@ -17,6 +17,32 @@ warnings.filterwarnings("ignore")
 plt.ion()  # interactive mode
 
 
+class InferenceMCSDataset(Dataset):
+    def __init__(self, tracks_df_csv, root_dir, transform=None):
+        self.tracks_df = pd.read_csv(tracks_df_csv)
+        # just paths to get embeddings
+        self.samples = self.tracks_df.warp_path.values.tolist()
+        self.root_dir = root_dir
+        self.transform = transform
+
+        print(f"Number of images for inference  is {len(self.samples)}")
+
+    def __len__(self):
+        return len(self.samples)
+
+    def __getitem__(self, idx):
+        track_image_path = self.samples[idx]
+
+        track_image_path = os.path.join(self.root_dir, track_image_path)
+        track_image = io.imread(track_image_path).astype(np.float32)
+        sample = {'track_image': track_image}
+
+        if self.transform:
+            sample = self.transform(sample)
+
+        return sample
+
+
 class MCSDataset(Dataset):
 
     def __init__(self, tracks_df_csv, order_df_csv, gt_csv, root_dir, is_val=False, transform=None):

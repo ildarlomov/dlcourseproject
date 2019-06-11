@@ -4,9 +4,12 @@ import torch.nn.functional as F
 
 
 class TripletNet(nn.Module):
-    def __init__(self, embeddingnet):
+    def __init__(self, embeddingnet, pretrained=False, weights_path=None):
         super(TripletNet, self).__init__()
         self.embeddingnet = embeddingnet
+        if pretrained:
+            weights = torch.load(weights_path, map_location='cpu')
+            self.load_state_dict(weights["model_state_dict"])
 
     def forward(self, x, y, z):
         embedded_x = self.embeddingnet(x)
@@ -15,3 +18,5 @@ class TripletNet(nn.Module):
         dist_a = F.pairwise_distance(embedded_x, embedded_y, 2)
         dist_b = F.pairwise_distance(embedded_x, embedded_z, 2)
         return dist_a, dist_b, embedded_x, embedded_y, embedded_z
+
+
