@@ -34,12 +34,11 @@ class MCSDataset(Dataset):
                 sampled_neg_image_path = self.gt_df[self.gt_df.person_id != person_id].sample(1).warp_path.values[0]
 
                 self.samples.append((sampled_track_image_path, sampled_pos_image_path, sampled_neg_image_path))
-            break
 
         self.root_dir = root_dir
         self.transform = transform
 
-        print(f"Troplets count for {'dev' if is_val else 'train'} is {len(self.samples)}")
+        print(f"Triplets count for {'dev' if is_val else 'train'} is {len(self.samples)}")
 
     def __len__(self):
         return len(self.samples)
@@ -92,26 +91,26 @@ class FakeMCSDataset(Dataset):
 
 # we are going to do train dataset and test dataset separately
 
-def check_data_iteration():
+def check_data_iteration(iterate_data=False):
     is_val = False
     # U may use MCSDataset for the training
-    dataset = FakeMCSDataset(tracks_df_csv='../../data/raw/train_df.csv',
-                             order_df_csv='../../data/raw/train_df_track_order_df.csv',
-                             gt_csv='../../data/raw/train_gt_df.csv',
-                             root_dir='../../data/raw/data',
-                             is_val=is_val,
-                             transform=ToTensor())
+    dataset = MCSDataset(tracks_df_csv='../../data/raw/train_df.csv',
+                         order_df_csv='../../data/raw/train_df_track_order_df.csv',
+                         gt_csv='../../data/raw/train_gt_df.csv',
+                         root_dir='../../data/raw/data',
+                         is_val=is_val,
+                         transform=ToTensor())
 
     print(f"Total triples in {'test' if is_val else 'train'} dataset is {len(dataset)}")
+    if iterate_data:
+        for i in range(len(dataset)):
+            sample = dataset[i]
+            # print(sample['track_image'])
 
-    for i in range(len(dataset)):
-        sample = dataset[i]
-        # print(sample['track_image'])
+            print(i, sample['track_image'].size(), sample['pos_image'].size(), sample['neg_image'].size())
 
-        print(i, sample['track_image'].size(), sample['pos_image'].size(), sample['neg_image'].size())
-
-        if i == 3:
-            break
+            if i == 3:
+                break
 
 
 if __name__ == '__main__':
