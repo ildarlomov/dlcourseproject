@@ -113,6 +113,16 @@ run_tb:
 get_descriptors:
 	CUDA_VISIBLE_DEVICES=7 python get_descriptors.py
 
+gp:
+	git pull
+
+gs:
+	git status
+
+gcp:
+	git commit && git push
+
+
 
 
 
