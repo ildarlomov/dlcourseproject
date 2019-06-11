@@ -111,7 +111,7 @@ run_tb:
 	CUDA_VISIBLE_DEVICE="" tensorboard --logdir=./models/baseline/logs/exp1
 
 get_descriptors:
-	python src/models/predict_model.py
+	python get_descriptors.py
 
 
 
