@@ -4,6 +4,7 @@ from tqdm import tqdm
 import argparse
 import os
 
+
 def main(conf):
     '''
     Baseline code.
@@ -34,4 +35,3 @@ if __name__ == '__main__':
     parser.add_argument('agg_descriptors_path', type=str, help='Path to result train_df_agg_descriptors.npy')
     conf = parser.parse_args()
     main(conf)
-
