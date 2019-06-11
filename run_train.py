@@ -40,8 +40,8 @@ if __name__ == "__main__":
                         is_val=True,
                         transform=ToTensor())
 
-    train_dl = DataLoader(train_ds, batch_size=32, shuffle=True, num_workers=4)
-    dev_dl = DataLoader(dev_ds, batch_size=32, shuffle=False, num_workers=4)
+    train_dl = DataLoader(train_ds, batch_size=32, shuffle=True, num_workers=12)
+    dev_dl = DataLoader(dev_ds, batch_size=32, shuffle=False, num_workers=12)
 
     loaders = {"train": train_dl, "dev": dev_dl}
 
