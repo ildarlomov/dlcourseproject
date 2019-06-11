@@ -39,6 +39,8 @@ class MCSDataset(Dataset):
         self.root_dir = root_dir
         self.transform = transform
 
+        print(f"Troplets count for {'dev' if is_val else 'train'} is {len(self.samples)}")
+
     def __len__(self):
         return len(self.samples)
 

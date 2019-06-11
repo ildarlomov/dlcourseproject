@@ -192,7 +192,7 @@ class MCSMetricsCallback(Callback):
         else:
             needed_tpr = tpr_filtered[-1]
 
-        print('score 1 (tpr@fpr=1e-6): {0:.4f} score 2 (mean distance): {1:.4f}'.format(needed_tpr, mean_positive_dist))
+        # print('score 1 (tpr@fpr=1e-6): {0:.4f} score 2 (mean distance): {1:.4f}'.format(needed_tpr, mean_positive_dist))
 
         state.metrics.add_batch_value(metrics_dict={
             self.prefix: needed_tpr,
