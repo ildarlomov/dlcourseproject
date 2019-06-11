@@ -8,7 +8,11 @@ class TripletNet(nn.Module):
         super(TripletNet, self).__init__()
         self.embeddingnet = embeddingnet
         if pretrained:
-            weights = torch.load(weights_path, map_location='cpu')
+            if torch.cuda.is_available():
+                map_location = lambda storage, loc: storage.cuda()
+            else:
+                map_location = 'cpu'
+            weights = torch.load(weights_path, map_location=map_location)
             self.load_state_dict(weights["model_state_dict"])
 
     def forward(self, x, y, z):

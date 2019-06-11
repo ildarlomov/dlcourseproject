@@ -15,7 +15,8 @@ if __name__ == '__main__':
                                   transform=ToTensor())
     model = ResNetCaffe([1, 2, 5, 3], BasicBlock, pretrained=False, weights_path=None)
     tnet = TripletNet(model, pretrained=True, weights_path=weights_path)
-    get_descriptors(output_agg_path, dataset, model)
+
+    get_descriptors(output_agg_path, dataset, tnet)
 
 
 
