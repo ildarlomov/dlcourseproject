@@ -35,13 +35,13 @@ if [[ BRANCH = "leaderboard" ]]
                 --agg_descriptors_path agg_descriptors.npy
     else
         # needs fix to legal evaluation
-        python3 descriptors_calculating.py \
+        python descriptors_calculating.py \
             --root_path data/raw/data \
             --df_path data/raw/train_df.csv \
             --descriptors_path models/baseline/logs/6/descriptors.npy \
             --weights_path models/baseline/logs/6/checkpoints/best.pth
 
-        python3 eval.py \
+        python eval.py \
             --test_df_path data/raw/train_df.csv \
             --track_order_df_path data/raw/train_df_track_order_df.csv \
             --test_descriptors_path models/baseline/logs/6/descriptors.npy \
