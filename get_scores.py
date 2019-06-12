@@ -32,7 +32,7 @@ def main(conf):
     test_gt_df = pd.read_csv(conf.test_gt_df_path)
     gt_descr = np.load(conf.gt_descriptors_path)
     # should include is_val column
-    test_df = np.load(conf.test_df)
+    test_df = pd.read_csv(conf.test_df_path)
 
     is_val_df = test_df.groupby('person_id').agg({'is_val': lambda x: set(x).pop()}).reset_index(drop=False)
     test_track_order_df = pd.merge(test_track_order_df, is_val_df, on='person_id', how='left')
@@ -59,9 +59,11 @@ def main(conf):
 
         return dist_arr, labels_arr
 
+    print('Train stage...')
     train_dists, train_labels = check_order_df(order_df_train)
     report_scores(train_dists, train_labels)
 
+    print('Dev stage...')
     dev_dists, dev_labels = check_order_df(order_df_test)
     report_scores(dev_dists, dev_labels)
 
