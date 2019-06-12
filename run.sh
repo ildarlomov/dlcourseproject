@@ -14,6 +14,7 @@ BRANCH = "local"
 #python3 get_descriptors.py test_df.csv best.pth test_descriptors.npy data
 
 if [[ BRANCH = "leaderboard" ]]
+    echo "Woring with branch $BRANCH"
     then
         wget -O best.pth 'http://mcs2019-competition.visionlabs.ru/resnet_caffe_weights.pth'
 
