@@ -18,8 +18,9 @@ branch="local"
 #python3 get_descriptors.py test_df.csv best.pth test_descriptors.npy data
 
 if [[ BRANCH = "leaderboard" ]]
-    echo "Woring with branch $branch"
+
     then
+        echo "Woring with branch $branch"
         wget -O best.pth 'http://mcs2019-competition.visionlabs.ru/resnet_caffe_weights.pth'
 
         python3 descriptors_calculating.py \
@@ -33,7 +34,10 @@ if [[ BRANCH = "leaderboard" ]]
                 --track_order_df_path track_order_df.csv \
                 --test_descriptors_path test_descriptors.npy \
                 --agg_descriptors_path agg_descriptors.npy
+
     else
+        echo "Woring with branch $branch"
+#        wget -O best.pth 'http://mcs2019-competition.visionlabs.ru/resnet_caffe_weights.pth'
         # needs fix to legal evaluation
         python descriptors_calculating.py \
             --root_path data/raw/data \
