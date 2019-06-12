@@ -29,9 +29,9 @@ def main(conf):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Inference by list')
-    parser.add_argument('test_df_path', type=str, help='Path to test_df.csv')
-    parser.add_argument('track_order_df_path', type=str, help='Path to track_order_df.csv')
-    parser.add_argument('test_descriptors_path', type=str, help='Path to test_descriptors.npy')
-    parser.add_argument('agg_descriptors_path', type=str, help='Path to result train_df_agg_descriptors.npy')
+    parser.add_argument('--test_df_path', type=str, help='Path to test_df.csv')
+    parser.add_argument('--track_order_df_path', type=str, help='Path to track_order_df.csv')
+    parser.add_argument('--test_descriptors_path', type=str, help='Path to test_descriptors.npy')
+    parser.add_argument('--agg_descriptors_path', type=str, help='Path to result train_df_agg_descriptors.npy')
     conf = parser.parse_args()
     main(conf)

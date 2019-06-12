@@ -11,6 +11,7 @@ from functools import reduce
 
 
 def get_new_logpath(logs_path: str) -> str:
+    # todo: if i deleted some dirs it will no longer work
     p = Path(logs_path)
     dirs_in_basepath = list(f for f in p.iterdir() if f.is_dir())
     return str(p / str(len(dirs_in_basepath) + 1))
@@ -40,6 +41,7 @@ if __name__ == "__main__":
                         is_val=True,
                         transform=ToTensor())
 
+    # todo: use maximal batch size for your gpu
     train_dl = DataLoader(train_ds, batch_size=64, shuffle=True, num_workers=12)
     dev_dl = DataLoader(dev_ds, batch_size=64, shuffle=False, num_workers=12)
 
