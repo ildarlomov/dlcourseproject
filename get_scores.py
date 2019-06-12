@@ -72,5 +72,6 @@ if __name__ == '__main__':
     parser.add_argument('--test_track_order_df', type=str, help='Path to test_track_order.csv file')
     parser.add_argument('--test_gt_df_path', type=str, help='Path to test_gt_df.csv file')
     parser.add_argument('--gt_descriptors_path', type=str, help='Path to gt_descriptors.npy file')
+    parser.add_argument('--test_df_path', type=str, help='Path to test_df.csv file to get train/test split')
     conf = parser.parse_args()
     main(conf)

@@ -55,7 +55,8 @@ if [[ BRANCH = "leaderboard" ]]
             --predicted_descr_path models/baseline/agg_descriptors.npy \
             --test_track_order_df data/raw/train_df_track_order_df.csv \
             --test_gt_df_path data/raw/train_gt_df.csv \
-	        --gt_descriptors_path data/raw/train_gt_descriptors.npy
+	        --gt_descriptors_path data/raw/train_gt_descriptors.npy \
+	        --test_df_path data/raw/train_df.csv
 fi
 
 
