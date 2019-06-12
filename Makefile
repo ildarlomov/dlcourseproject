@@ -109,6 +109,12 @@ get_descriptors:
 find-done-commit:
 	git log | grep -C 10  @done-commit
 
+build-submit:
+	docker build -t msc-submit .
+
+run-submit: build-submit
+	nvidia-docker  run  --shm-size 16G -e CUDA_VISIBLE_DEVICES=0 --rm -it --name mcs-submit-custom msc-submit:latest
+
 
 
 
