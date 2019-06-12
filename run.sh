@@ -8,13 +8,17 @@ export CUDA_VISIBLE_DEVICES=0
 #mcs baseline
 
 
-BRANCH = "local"
-#BRANCH = "leaderboard"
+
+#foo="Hello"
+#foo="$foo World"
+#echo $foo
+branch="local"
+#branch="leaderboard"
 
 #python3 get_descriptors.py test_df.csv best.pth test_descriptors.npy data
 
 if [[ BRANCH = "leaderboard" ]]
-    echo "Woring with branch $BRANCH"
+    echo "Woring with branch $branch"
     then
         wget -O best.pth 'http://mcs2019-competition.visionlabs.ru/resnet_caffe_weights.pth'
 
