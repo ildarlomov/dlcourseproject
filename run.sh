@@ -12,17 +12,18 @@ export CUDA_VISIBLE_DEVICES=0
 #foo="Hello"
 #foo="$foo World"
 #echo $foo
-branch="local"
+#branch="local"
 branch="leaderboard"
 
 #python3 get_descriptors.py test_df.csv best.pth test_descriptors.npy data
 
 pip install -r requirements.txt
 
-if [[ branch == "leaderboard" ]]
+if [[ "$branch" == "leaderboard" ]];
 
     then
         echo "Woring with branch $branch"
+        echo "In THEN"
         wget -O best.pth 'http://mcs2019-competition.visionlabs.ru/resnet_caffe_weights.pth'
 
         python3 descriptors_calculating.py \
@@ -39,6 +40,7 @@ if [[ branch == "leaderboard" ]]
 
     else
         echo "Woring with branch $branch"
+        echo "In ELSE"
         wget -O best.pth 'http://mcs2019-competition.visionlabs.ru/resnet_caffe_weights.pth'
 
         python descriptors_calculating.py \
