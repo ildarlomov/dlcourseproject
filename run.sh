@@ -43,7 +43,7 @@ if [[ BRANCH = "leaderboard" ]]
             --root_path data/raw/data \
             --df_path data/raw/train_df.csv \
             --descriptors_path models/baseline/logs/6/descriptors.npy \
-            --weights_path models/baseline/logs/6/checkpoints/best.pth
+            --weights_path best.pth
 
         python eval.py \
             --test_df_path data/raw/train_df.csv \
