@@ -23,13 +23,13 @@ if [[ BRANCH = "leaderboard" ]]
     then
         wget -O best.pth 'http://mcs2019-competition.visionlabs.ru/resnet_caffe_weights.pth'
 
-        python descriptors_calculating.py \
+        python3 descriptors_calculating.py \
                 --root_path data \
                 --df_path test_df.csv \
                 --descriptors_path test_descriptors.npy \
                 --weights_path best.pth
 
-        python eval.py \
+        python3 eval.py \
                 --test_df_path test_df.csv \
                 --track_order_df_path track_order_df.csv \
                 --test_descriptors_path test_descriptors.npy \
@@ -50,6 +50,12 @@ if [[ BRANCH = "leaderboard" ]]
             --track_order_df_path data/raw/train_df_track_order_df.csv \
             --test_descriptors_path models/baseline/logs/6/descriptors.npy \
             --agg_descriptors_path models/baseline/agg_descriptors.npy
+
+	    python get_scores.py \
+            --predicted_descr_path models/baseline/agg_descriptors.npy \
+            --test_track_order_df data/raw/train_df_track_order_df.csv \
+            --test_gt_df_path data/raw/train_gt_df.csv \
+	        --gt_descriptors_path data/raw/train_gt_descriptors.npy
 fi
 
 
