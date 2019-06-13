@@ -8,8 +8,6 @@ from tqdm import tqdm
 
 
 def report_scores(dist_arr, labels_arr):
-    dist_arr = np.array(dist_arr)
-    labels_arr = np.array(labels_arr)
 
     mean_positive_dist = np.mean(dist_arr[labels_arr == 1])
     fpr, tpr, thr = roc_curve(labels_arr, -1 * dist_arr)
@@ -61,10 +59,20 @@ def main(conf):
 
     print('Train stage...')
     train_dists, train_labels = check_order_df(order_df_train)
+
+    train_dists = np.array(train_dists)
+    train_labels = np.array(train_labels)
+    print(f'Train stage POS frac {np.round(np.mean(train_labels), 3)}')
+
     report_scores(train_dists, train_labels)
 
     print('Dev stage...')
     dev_dists, dev_labels = check_order_df(order_df_test)
+
+    dev_dists = np.array(dev_dists)
+    dev_labels = np.array(dev_labels)
+    print(f'Dev stage POS frac {np.round(np.mean(dev_labels), 3)}')
+
     report_scores(dev_dists, dev_labels)
 
 

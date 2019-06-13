@@ -44,9 +44,9 @@ class TripletLossCallback(Callback):
 
     def _compute_loss(self, state, criterion):
         loss = criterion(
-            state.output[self.output_key][0],
-            state.output[self.output_key][1],
-            state.input[self.input_key]
+            state.output[self.output_key][2],
+            state.output[self.output_key][3],
+            state.output[self.output_key][4]
         )
         return loss
 
@@ -130,7 +130,7 @@ class MCSMetricsCallback(Callback):
             self,
             input_key: str = "targets",
             output_key: str = "logits",
-            prefix: str = "TPR@FPR=1e-06",
+            prefix: str = "mcs-",
             criterion_key: str = None,
             loss_key: str = None,
             multiplier: float = 1.0
@@ -143,47 +143,47 @@ class MCSMetricsCallback(Callback):
         self.multiplier = multiplier
         # stores tuples (dist, 1 or 0 if same person or not)
         self.buff_with_batch_scores = []
+        self.epoch_dists_buff = np.empty(0, dtype=np.float32)
+        self.epoch_labels_buff = np.empty(0, dtype=np.float32)
 
-    def _add_loss_to_state(self, state, loss):
-        if self.loss_key is None:
-            if state.loss is not None:
-                if isinstance(state.loss, list):
-                    state.loss.append(loss)
-                else:
-                    state.loss = [state.loss, loss]
-            else:
-                state.loss = loss
-        else:
-            if state.loss is not None:
-                assert isinstance(state.loss, dict)
-                state.loss[self.loss_key] = loss
-            else:
-                state.loss = {self.loss_key: loss}
-
-    def _compute_loss(self, state, criterion):
-        loss = criterion(
-            state.output[self.output_key][0],
-            state.output[self.output_key][1],
-            state.input[self.input_key]
-        )
-        return loss
+    # def _add_loss_to_state(self, state, loss):
+    #     if self.loss_key is None:
+    #         if state.loss is not None:
+    #             if isinstance(state.loss, list):
+    #                 state.loss.append(loss)
+    #             else:
+    #                 state.loss = [state.loss, loss]
+    #         else:
+    #             state.loss = loss
+    #     else:
+    #         if state.loss is not None:
+    #             assert isinstance(state.loss, dict)
+    #             state.loss[self.loss_key] = loss
+    #         else:
+    #             state.loss = {self.loss_key: loss}
 
     def on_stage_start(self, state):
         assert state.criterion is not None
 
     def on_batch_end(self, state):
-        # todo: check if normalized
+
         dist_pos = state.output[self.output_key][0].detach().cpu().numpy()
         dist_neg = state.output[self.output_key][1].detach().cpu().numpy()
-        pos_labels = np.ones(dist_pos.shape[0])
-        neg_labels = np.zeros(dist_pos.shape[0])
-        self.buff_with_batch_scores.append((dist_pos, pos_labels))
-        self.buff_with_batch_scores.append((dist_neg, neg_labels))
+
+        pos_labels = np.ones(dist_pos.shape[0], dtype=np.float32)
+        neg_labels = np.zeros(dist_pos.shape[0], dtype=np.float32)
+
+        # todo: memory leak here
+        self.epoch_dists_buff = np.hstack((self.epoch_dists_buff, dist_pos))
+        self.epoch_labels_buff = np.hstack((self.epoch_labels_buff, pos_labels))
+
+        self.epoch_dists_buff = np.hstack((self.epoch_dists_buff, dist_neg))
+        self.epoch_labels_buff = np.hstack((self.epoch_labels_buff, neg_labels))
 
         dist_arr = np.hstack([dist_pos, dist_neg])
         labels_arr = np.hstack([pos_labels, neg_labels])
 
-        mean_positive_dist = np.mean(dist_arr[labels_arr == 1])
+        mean_positive_dist = np.mean(dist_pos)
         fpr, tpr, thr = roc_curve(labels_arr, -1 * dist_arr)
 
         tpr_filtered = tpr[fpr <= 1e-6]
@@ -195,10 +195,27 @@ class MCSMetricsCallback(Callback):
         # print('score 1 (tpr@fpr=1e-6): {0:.4f} score 2 (mean distance): {1:.4f}'.format(needed_tpr, mean_positive_dist))
 
         state.metrics.add_batch_value(metrics_dict={
-            self.prefix: needed_tpr,
+            self.prefix + "TPR@FPR=1e-06": needed_tpr,
+            self.prefix + "Dist": mean_positive_dist,
         })
 
         # self._add_loss_to_state(state, )
 
     def on_epoch_end(self, state):
-        pass
+
+        # todo: add here our legal function of estimating performance of the algorithm
+
+        mean_positive_dist = np.mean(self.epoch_dists_buff[self.epoch_labels_buff == 1.0])
+        fpr, tpr, thr = roc_curve(self.epoch_labels_buff, -1 * self.epoch_dists_buff)
+
+        tpr_filtered = tpr[fpr <= 1e-6]
+        if len(tpr_filtered) == 0:
+            needed_tpr = 0.0
+        else:
+            needed_tpr = tpr_filtered[-1]
+
+        state.metrics.add_batch_value(metrics_dict={
+            self.prefix + "epoch-TPR@FPR=1e-06": needed_tpr,
+            self.prefix + "epoch-pos-frac": np.mean(self.epoch_labels_buff),
+            self.prefix + "epoch-Dist": mean_positive_dist,
+        })
