@@ -1,7 +1,7 @@
 import torch
 from catalyst.dl.experiments import SupervisedRunner
 from src.data.read_dataset import MCSDataset, FakeMCSDataset
-from src.data.baseline_transformers import ToTensor
+# from src.data.baseline_transformers import ToTensor
 from torch.utils.data.dataloader import DataLoader
 from src.models.triplet import TripletNet
 # from src.models.baseline_net import ResNetCaffe, BasicBlock
@@ -32,8 +32,10 @@ if __name__ == "__main__":
     MEAN = [0.485, 0.456, 0.406]
     STD = [0.229, 0.224, 0.225]
     preprocessing = tv.transforms.Compose([
+        tv.transforms.ToPILImage(),
         tv.transforms.ToTensor(),
-        tv.transforms.Normalize(mean=MEAN, std=STD)])
+        tv.transforms.Normalize(mean=MEAN, std=STD),
+        ])
 
     # data
     train_ds = MCSDataset(tracks_df_csv='data/raw/train_df.csv',

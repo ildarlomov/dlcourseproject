@@ -101,7 +101,7 @@ run_train_1:
 	CUDA_VISIBLE_DEVICES=0 python run_train.py
 
 run_tb:
-	CUDA_VISIBLE_DEVICE="" tensorboard --logdir=./models/baseline/logs/exp1
+	CUDA_VISIBLE_DEVICE="" tensorboard --logdir=./models/baseline/logs/25
 
 get_descriptors:
 	CUDA_VISIBLE_DEVICES=7 python get_descriptors.py

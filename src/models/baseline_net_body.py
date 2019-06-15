@@ -116,14 +116,17 @@ class ResNetCaffeBody(nn.Module):
         self.layer4 = self._make_layer(block, round(512 * k), layers[3], stride=2)
         # self.fc = nn.Linear(round(12800 * k), 512, bias=True)
 
-        scale = calculate_scale(self.fc.weight.data)
-        torch.nn.init.uniform_(self.fc.weight.data, -scale, scale)
-        if self.fc.bias is not None:
-            self.fc.bias.data.zero_()
+        # scale = calculate_scale(self.fc.weight.data)
+        # torch.nn.init.uniform_(self.fc.weight.data, -scale, scale)
+        # if self.fc.bias is not None:
+        #     self.fc.bias.data.zero_()
 
         if pretrained:
             # Put your path
             weights = torch.load(weights_path, map_location='cpu')
+            # removing unexpected keys for funetuning
+            weights.pop("fc.weight", None)
+            weights.pop("fc.bias", None)
             self.load_state_dict(weights)
 
     def _make_layer(self, block, planes, blocks, stride=1):

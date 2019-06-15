@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, utils
-from src.data.baseline_transformers import ToTensor
+from src.data.baseline_transformers import TransformsWrapper
 from tqdm import tqdm
 # Ignore warnings
 import warnings
@@ -37,9 +37,6 @@ class InferenceMCSDataset(Dataset):
         track_image = io.imread(track_image_path).astype(np.float32)
         sample = {'track_image': track_image}
 
-        if self.transform:
-            sample = self.transform(sample)
-
         return sample
 
 
@@ -50,9 +47,11 @@ class MCSDataset(Dataset):
         self.gt_df = pd.read_csv(gt_csv)
         self.tracks_df = pd.read_csv(tracks_df_csv)
         self.tracks_df = self.tracks_df[self.tracks_df.is_val == is_val]
+        self.tw = TransformsWrapper(transform)
 
         self.samples = list()
         # 1 triplet sample for one person
+        print(f"Generating samples for {'dev' if is_val else 'train'}")
         for person_id in tqdm(np.unique(self.tracks_df.person_id.values)):
             for track_id, person_tracks_df in self.tracks_df[self.tracks_df.person_id == person_id].groupby('track_id'):
                 sampled_track_image_path = person_tracks_df.sample(1).warp_path.values[0]
@@ -60,7 +59,6 @@ class MCSDataset(Dataset):
                 sampled_neg_image_path = self.gt_df[self.gt_df.person_id != person_id].sample(1).warp_path.values[0]
 
                 self.samples.append((sampled_track_image_path, sampled_pos_image_path, sampled_neg_image_path))
-
         self.root_dir = root_dir
         self.transform = transform
 
@@ -76,42 +74,41 @@ class MCSDataset(Dataset):
         pos_image_path = os.path.join(self.root_dir, pos_image_path)
         neg_image_path = os.path.join(self.root_dir, neg_image_path)
 
-        track_image = io.imread(track_image_path).astype(np.float32)
-        pos_image = io.imread(pos_image_path).astype(np.float32)
-        neg_image = io.imread(neg_image_path).astype(np.float32)
+        track_image = io.imread(track_image_path)
+        pos_image = io.imread(pos_image_path)
+        neg_image = io.imread(neg_image_path)
 
-        sample = {'track_image': track_image, 'pos_image': pos_image, 'neg_image': neg_image}
+        sample = {'track_image': track_image,
+                  'pos_image': pos_image,
+                  'neg_image': neg_image}
 
         if self.transform:
-            sample = self.transform(sample)
+            sample = self.tw(sample)
 
-        target = torch.from_numpy(np.array([1.0], dtype=np.float32))
-        sample['targets'] = target
         return sample
 
 
 class FakeMCSDataset(Dataset):
 
     def __init__(self, tracks_df_csv, order_df_csv, gt_csv, root_dir, is_val=False, transform=None):
-        self.samples = [(np.random.randn(112, 112, 3).astype(np.float32),
-                         np.random.randn(112, 112, 3).astype(np.float32),
-                         np.random.randn(112, 112, 3).astype(np.float32)) for _
-                        in range(100)]
+        self.samples = [(np.random.randn(112, 112, 3).astype(np.uint8),
+                         np.random.randn(112, 112, 3).astype(np.uint8),
+                         np.random.randn(112, 112, 3).astype(np.uint8))
+                        for _ in range(100)]
         self.transform = transform
+        self.tw = TransformsWrapper(transform)
 
     def __len__(self):
         return len(self.samples)
 
     def __getitem__(self, idx):
         track_image, pos_image, neg_image = self.samples[idx]
-        target = torch.from_numpy(np.array([1.0], dtype=np.float32))
 
         sample = {'track_image': track_image, 'pos_image': pos_image, 'neg_image': neg_image}
 
         if self.transform:
-            sample = self.transform(sample)
+            sample = self.tw(sample)
 
-        sample['targets'] = target
         return sample
 
 

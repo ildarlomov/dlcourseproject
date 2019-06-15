@@ -22,7 +22,7 @@ pip install -r requirements.txt
 if [[ "$branch" == "leaderboard" ]];
 
     then
-        echo "Woring with branch $branch"
+        echo "Working with branch $branch"
         echo "In THEN"
         wget -O best.pth 'http://mcs2019-competition.visionlabs.ru/resnet_caffe_weights.pth'
 
@@ -39,7 +39,7 @@ if [[ "$branch" == "leaderboard" ]];
                 --agg_descriptors_path agg_descriptors.npy
 
     else
-        echo "Woring with branch $branch"
+        echo "Working with branch $branch"
         echo "In ELSE"
         wget -O best.pth 'http://mcs2019-competition.visionlabs.ru/resnet_caffe_weights.pth'
 

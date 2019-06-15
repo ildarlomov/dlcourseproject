@@ -1,13 +1,16 @@
 import torch
 
-class ToTensor(object):
-    """Convert ndarrays in sample to Tensors."""
+
+class TransformsWrapper(object):
+    """Convert ndarrays in sample accoring to transforms."""
+
+    def __init__(self, transform):
+        self.transform = transform
+        super().__init__()
 
     def __call__(self, sample):
         # swap color axis because
         # numpy image: H x W x C
         # torch image: C X H X W
-        def to_torch_tensor(img):
-            return torch.from_numpy(img.transpose((2, 0, 1)))
 
-        return {k: to_torch_tensor(v) for k, v in sample.items()}
+        return {k: self.transform(v) for k, v in sample.items()}
