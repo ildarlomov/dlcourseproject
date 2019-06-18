@@ -41,13 +41,15 @@ if [[ "$branch" == "leaderboard" ]];
     else
         echo "Working with branch $branch"
         echo "In ELSE"
-        wget -O best.pth 'http://mcs2019-competition.visionlabs.ru/resnet_caffe_weights.pth'
+#        wget -O best.pth 'http://mcs2019-competition.visionlabs.ru/resnet_caffe_weights.pth'
 
         python descriptors_calculating.py \
             --root_path data/raw/data \
             --df_path data/raw/train_df.csv \
             --descriptors_path models/baseline/logs/6/descriptors.npy \
-            --weights_path best.pth
+            --weights_path models/baseline/logs/25/checkpoints/train.34.pth
+#            --weights_path best.pth
+
 
         python eval.py \
             --test_df_path data/raw/train_df.csv \

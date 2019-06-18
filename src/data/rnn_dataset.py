@@ -13,35 +13,7 @@ from tqdm import tqdm
 import warnings
 import torchvision as tv
 
-warnings.filterwarnings("ignore")
-
-plt.ion()  # interactive mode
-
-
-class InferenceMCSDataset(Dataset):
-    def __init__(self, tracks_df_csv, root_dir, transform=None):
-        self.tracks_df = pd.read_csv(tracks_df_csv)
-        # just paths to get embeddings
-        self.samples = self.tracks_df.warp_path.values.tolist()
-        self.root_dir = root_dir
-        self.transform = transform
-
-        print(f"Number of images for inference  is {len(self.samples)}")
-
-    def __len__(self):
-        return len(self.samples)
-
-    def __getitem__(self, idx):
-        track_image_path = self.samples[idx]
-
-        track_image_path = os.path.join(self.root_dir, track_image_path)
-        track_image = io.imread(track_image_path).astype(np.float32)
-        sample = {'track_image': track_image}
-
-        return sample
-
-
-class MCSDataset(Dataset):
+class RNNMCSDataset(Dataset):
 
     def __init__(self, tracks_df_csv, order_df_csv, gt_csv, root_dir, is_val=False, transform=None):
         self.order_df = pd.read_csv(order_df_csv)
@@ -89,26 +61,38 @@ class MCSDataset(Dataset):
         return sample
 
 
-class FakeMCSDataset(Dataset):
+class FakeRNNMCSDataset(Dataset):
 
     def __init__(self, tracks_df_csv, order_df_csv, gt_csv, root_dir, is_val=False, transform=None):
-        self.samples = [(np.random.randn(112, 112, 3).astype(np.uint8),
-                         np.random.randn(112, 112, 3).astype(np.uint8),
-                         np.random.randn(112, 112, 3).astype(np.uint8))
+        # [gt_image, pos_seq, neg_seq]
+        seq_len = 5
+        # self.samples = [[np.random.randn(112, 112, 3).astype(np.uint8),
+        #                 [np.random.randn(112, 112, 3).astype(np.uint8) for i in range(seq_len)],
+        #                 [np.random.randn(112, 112, 3).astype(np.uint8) for i in range(seq_len)]]
+        #                 for _ in range(100)]
+
+        self.samples = [[np.random.randn(512).astype(np.uint8),
+                         [np.random.randn(512).astype(np.uint8) for i in range(seq_len)],
+                         [np.random.randn(512).astype(np.uint8) for i in range(seq_len)]]
                         for _ in range(100)]
-        self.transform = transform
-        self.tw = TransformsWrapper(transform)
+
+        # self.transform = transform
+        # self.tw = TransformsWrapper(transform)
 
     def __len__(self):
         return len(self.samples)
 
     def __getitem__(self, idx):
-        track_image, pos_image, neg_image = self.samples[idx]
+        track_image, pos_seq, neg_seq = self.samples[idx]
+        # track_image = self.transform(track_image)
+        track_image = torch.from_numpy(track_image)
+        pos_seq = [torch.from_numpy(pos_img) for pos_img in pos_seq]
+        neg_seq = [torch.from_numpy(neg_img) for neg_img in neg_seq]
 
-        sample = {'track_image': track_image, 'pos_image': pos_image, 'neg_image': neg_image}
+        pos_seq = torch.stack(pos_seq, dim=0, out=None)
+        neg_seq = torch.stack(neg_seq, dim=0, out=None)
 
-        if self.transform:
-            sample = self.tw(sample)
+        sample = {'gt_image': track_image, 'pos_seq': pos_seq, 'neg_seq': neg_seq}
 
         return sample
 
@@ -125,7 +109,7 @@ def check_data_iteration(iterate_data=False):
         tv.transforms.ToTensor(),
         tv.transforms.Normalize(mean=MEAN, std=STD),
     ])
-    dataset = FakeMCSDataset(tracks_df_csv='../../data/raw/train_df.csv',
+    dataset = FakeRNNMCSDataset(tracks_df_csv='../../data/raw/train_df.csv',
                              order_df_csv='../../data/raw/train_df_track_order_df.csv',
                              gt_csv='../../data/raw/train_gt_df.csv',
                              root_dir='../../data/raw/data',
@@ -138,7 +122,7 @@ def check_data_iteration(iterate_data=False):
             sample = dataset[i]
             # print(sample['track_image'])
 
-            print(i, sample['track_image'].size(), sample['pos_image'].size(), sample['neg_image'].size())
+            print(i, sample['gt_image'].size(), sample['pos_seq'].size(), sample['neg_seq'].size())
 
             if i == 3:
                 break
