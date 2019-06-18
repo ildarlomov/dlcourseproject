@@ -13,25 +13,51 @@ from tqdm import tqdm
 import warnings
 import torchvision as tv
 
+
 class RNNMCSDataset(Dataset):
 
-    def __init__(self, tracks_df_csv, order_df_csv, gt_csv, root_dir, is_val=False, transform=None):
-        self.order_df = pd.read_csv(order_df_csv)
-        self.gt_df = pd.read_csv(gt_csv)
-        self.tracks_df = pd.read_csv(tracks_df_csv)
-        self.tracks_df = self.tracks_df[self.tracks_df.is_val == is_val]
-        self.tw = TransformsWrapper(transform)
+    def __init__(
+            self,
+            train_df: str,
+            train_df_descriptors,
+            train_gt_df,
+            train_gt_descriptors,
+            train_df_track_order_df,
+            root_dir,
+            is_val=False,
+            transform=None
+    ):
+        """ Plan
+            1. for each track presented form 1 triplet with each of gt images vs one random negative track
+            and lets work with indices only
+        """
+        self.train_df = pd.read_csv(train_df)
+        self.train_df_descriptors = np.load(train_df_descriptors)
+        self.train_gt_df = pd.read_csv(train_gt_df)
+        self.train_gt_descriptors = np.load(train_gt_descriptors)
+        self.train_df_track_order_df = pd.read_csv(train_df_track_order_df)
+        self.train_df_track_order_df = pd.merge(self.train_df_track_order_df,
+                                                self.train_df[['person_id', 'is_val']].drop_duplicates(),
+                                                on='person_id',
+                                                how='left')  # [is_val == False]
+        self.train_df_track_order_df = self.train_df_track_order_df[self.train_df_track_order_df.is_val == is_val]
 
         self.samples = list()
         # 1 triplet sample for one person
         print(f"Generating samples for {'dev' if is_val else 'train'}")
-        for person_id in tqdm(np.unique(self.tracks_df.person_id.values)):
-            for track_id, person_tracks_df in self.tracks_df[self.tracks_df.person_id == person_id].groupby('track_id'):
-                sampled_track_image_path = person_tracks_df.sample(1).warp_path.values[0]
-                sampled_pos_image_path = self.gt_df[self.gt_df.person_id == person_id].sample(1).warp_path.values[0]
-                sampled_neg_image_path = self.gt_df[self.gt_df.person_id != person_id].sample(1).warp_path.values[0]
+        for id, (track_id, person_id) in tqdm(self.train_df_track_order_df[['track_id', 'person_id']].iterrows(), total=len(self.train_df_track_order_df)):
+            not_this_person_order_df = self.train_df_track_order_df[self.train_df_track_order_df.person_id != person_id]
+            track_image_idxs = self.train_df[self.train_df.track_id == track_id].index.values
+            track_anchors_df = self.train_gt_df[self.train_gt_df.person_id == person_id]
+            for anchor_idx in track_anchors_df.index.values:
+                not_this_person_sampled_track_id = not_this_person_order_df.sample(1).track_id.values[0]
+                not_this_person_sampled_track_image_idxs = self.train_df[
+                    self.train_df.track_id == not_this_person_sampled_track_id].index.values
 
-                self.samples.append((sampled_track_image_path, sampled_pos_image_path, sampled_neg_image_path))
+                self.samples.append((anchor_idx, track_image_idxs, not_this_person_sampled_track_image_idxs))
+            if id > 100:
+                break
+
         self.root_dir = root_dir
         self.transform = transform
 
@@ -41,39 +67,45 @@ class RNNMCSDataset(Dataset):
         return len(self.samples)
 
     def __getitem__(self, idx):
-        track_image_path, pos_image_path, neg_image_path = self.samples[idx]
 
-        track_image_path = os.path.join(self.root_dir, track_image_path)
-        pos_image_path = os.path.join(self.root_dir, pos_image_path)
-        neg_image_path = os.path.join(self.root_dir, neg_image_path)
+        gt_image_idx, pos_images_idxs, neg_images_idxs = self.samples[idx]
+        # todo: maybe add some scaling on all given descriptors
+        gt_descriptor = self.train_gt_descriptors[gt_image_idx]
+        pos_seq = self.train_df_descriptors[pos_images_idxs]
+        neg_seq = self.train_df_descriptors[neg_images_idxs]
 
-        track_image = io.imread(track_image_path)
-        pos_image = io.imread(pos_image_path)
-        neg_image = io.imread(neg_image_path)
+        gt_descriptor = torch.from_numpy(gt_descriptor)
 
-        sample = {'track_image': track_image,
-                  'pos_image': pos_image,
-                  'neg_image': neg_image}
+        pos_seq = [torch.from_numpy(pos_img) for pos_img in pos_seq]
+        neg_seq = [torch.from_numpy(neg_img) for neg_img in neg_seq]
 
-        if self.transform:
-            sample = self.tw(sample)
+        pos_seq = torch.stack(pos_seq, dim=0, out=None)
+        neg_seq = torch.stack(neg_seq, dim=0, out=None)
+
+        sample = {'gt_image': gt_descriptor,
+                  'pos_seq': pos_seq,
+                  'neg_seq': neg_seq}
 
         return sample
 
 
 class FakeRNNMCSDataset(Dataset):
 
-    def __init__(self, tracks_df_csv, order_df_csv, gt_csv, root_dir, is_val=False, transform=None):
-        # [gt_image, pos_seq, neg_seq]
+    def __init__(
+            self,
+            train_df: str,
+            train_df_descriptors,
+            train_gt_df,
+            train_gt_descriptors,
+            train_df_track_order_df,
+            root_dir,
+            is_val=False,
+            transform=None
+    ):
         seq_len = 5
-        # self.samples = [[np.random.randn(112, 112, 3).astype(np.uint8),
-        #                 [np.random.randn(112, 112, 3).astype(np.uint8) for i in range(seq_len)],
-        #                 [np.random.randn(112, 112, 3).astype(np.uint8) for i in range(seq_len)]]
-        #                 for _ in range(100)]
-
-        self.samples = [[np.random.randn(512).astype(np.uint8),
-                         [np.random.randn(512).astype(np.uint8) for i in range(seq_len)],
-                         [np.random.randn(512).astype(np.uint8) for i in range(seq_len)]]
+        self.samples = [[np.random.randn(512).astype(np.float32),
+                         [np.random.randn(512).astype(np.float32) for i in range(seq_len)],
+                         [np.random.randn(512).astype(np.float32) for i in range(seq_len)]]
                         for _ in range(100)]
 
         # self.transform = transform
@@ -109,12 +141,17 @@ def check_data_iteration(iterate_data=False):
         tv.transforms.ToTensor(),
         tv.transforms.Normalize(mean=MEAN, std=STD),
     ])
-    dataset = FakeRNNMCSDataset(tracks_df_csv='../../data/raw/train_df.csv',
-                             order_df_csv='../../data/raw/train_df_track_order_df.csv',
-                             gt_csv='../../data/raw/train_gt_df.csv',
-                             root_dir='../../data/raw/data',
-                             is_val=is_val,
-                             transform=preprocessing)
+
+    dataset = RNNMCSDataset(
+        train_df="../../data/raw/train_df.csv",
+        train_df_descriptors="../../data/raw/train_df_descriptors.npy",
+        train_gt_df="../../data/raw/train_gt_df.csv",
+        train_gt_descriptors="../../data/raw/train_gt_descriptors.npy",
+        train_df_track_order_df="../../data/raw/train_df_track_order_df.csv",
+        root_dir='../../data/raw/data',
+        is_val=False,
+        transform=None
+    )
 
     print(f"Total triples in {'test' if is_val else 'train'} dataset is {len(dataset)}")
     if iterate_data:
@@ -124,8 +161,8 @@ def check_data_iteration(iterate_data=False):
 
             print(i, sample['gt_image'].size(), sample['pos_seq'].size(), sample['neg_seq'].size())
 
-            if i == 3:
-                break
+            # if i == 3:
+            #     break
 
 
 if __name__ == '__main__':

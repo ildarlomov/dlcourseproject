@@ -1,12 +1,14 @@
 import torch
 from catalyst.dl.experiments import SupervisedRunner
 from src.data.read_dataset import MCSDataset, FakeMCSDataset
+from src.data.rnn_dataset import RNNMCSDataset, FakeRNNMCSDataset
 # from src.data.baseline_transformers import ToTensor
 from torch.utils.data.dataloader import DataLoader
-from src.models.triplet import TripletNet
-# from src.models.baseline_net import ResNetCaffe, BasicBlock
-from src.models.baseline_net_body import ResNetCaffeBody, BasicBlock
+from src.models.triplet import TripletNet, RNNTripletNet
+from src.models.baseline_net import ResNetCaffe, BasicBlock
+# from src.models.baseline_net_body import ResNetCaffeBody, BasicBlock
 from src.models.models_for_finetuning import ResNetCaffeFinetune
+from src.models.rnn import ResnetBasedRNN
 from src.catalyst_hacks.triplet_runner import TripletRunner, TripletLossCallback, MCSMetricsCallback
 from pathlib import Path
 from functools import reduce
@@ -35,22 +37,30 @@ if __name__ == "__main__":
         tv.transforms.ToPILImage(),
         tv.transforms.ToTensor(),
         tv.transforms.Normalize(mean=MEAN, std=STD),
-        ])
+    ])
 
     # data
-    train_ds = MCSDataset(tracks_df_csv='data/raw/train_df.csv',
-                          order_df_csv='data/raw/train_df_track_order_df.csv',
-                          gt_csv='data/raw/train_gt_df.csv',
-                          root_dir='data/raw/data',
-                          is_val=False,
-                          transform=preprocessing)
+    train_ds = RNNMCSDataset(
+        train_df="data/raw/train_df.csv",
+        train_df_descriptors="data/raw/train_df_descriptors.npy",
+        train_gt_df="data/raw/train_gt_df.csv",
+        train_gt_descriptors="data/raw/train_gt_descriptors.npy",
+        train_df_track_order_df="data/raw/train_df_track_order_df.csv",
+        root_dir='data/raw/data',
+        is_val=False,
+        transform=preprocessing
+    )
 
-    dev_ds = MCSDataset(tracks_df_csv='data/raw/train_df.csv',
-                        order_df_csv='data/raw/train_df_track_order_df.csv',
-                        gt_csv='data/raw/train_gt_df.csv',
-                        root_dir='data/raw/data',
-                        is_val=True,
-                        transform=preprocessing)
+    dev_ds = RNNMCSDataset(
+        train_df="data/raw/train_df.csv",
+        train_df_descriptors="data/raw/train_df_descriptors.npy",
+        train_gt_df="data/raw/train_gt_df.csv",
+        train_gt_descriptors="data/raw/train_gt_descriptors.npy",
+        train_df_track_order_df="data/raw/train_df_track_order_df.csv",
+        root_dir='data/raw/data',
+        is_val=True,
+        transform=preprocessing
+    )
 
     # todo: use maximal batch size for your gpu
     train_dl = DataLoader(train_ds, batch_size=64, shuffle=True, num_workers=12, pin_memory=True, drop_last=False)
@@ -59,10 +69,16 @@ if __name__ == "__main__":
     loaders = {"train": train_dl, "dev": dev_dl}
 
     # model, criterion, optimizer
-    body_weights = "models/baseline/resnet_caffe_weights.pth"
-    model = ResNetCaffeBody([1, 2, 5, 3], BasicBlock, pretrained=True, weights_path=body_weights)
-    finetune_model = ResNetCaffeFinetune(body_model=model)
-    tnet = TripletNet(finetune_model)
+    # body_weights = "models/baseline/resnet_caffe_weights.pth"
+    # model = ResNetCaffe([1, 2, 5, 3], BasicBlock, pretrained=True, weights_path=body_weights)
+    embedding_rnn = ResnetBasedRNN(
+        embeddingnet=None,  # model, if you want to optimize baseline feature extractor as well
+        num_layers=1,
+        dropout=0,
+        hidden_size=512,
+        input_size=512
+    )
+    tnet = RNNTripletNet(embedding_rnn)
 
     params_to_update = []
     print("Params to learn during transfer learning!:")
@@ -80,7 +96,7 @@ if __name__ == "__main__":
     mcs_metrics_callback = MCSMetricsCallback()
 
     # model runner
-    runner = TripletRunner(achor_key='track_image', pos_key='pos_image', neg_key='neg_image')
+    runner = TripletRunner(achor_key='gt_image', pos_key='pos_seq', neg_key='neg_seq')
 
     # model training
     runner.train(

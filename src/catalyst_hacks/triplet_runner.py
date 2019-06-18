@@ -202,20 +202,19 @@ class MCSMetricsCallback(Callback):
         # self._add_loss_to_state(state, )
 
     def on_epoch_end(self, state):
-
         # todo: add here our legal function of estimating performance of the algorithm
-
-        mean_positive_dist = np.mean(self.epoch_dists_buff[self.epoch_labels_buff == 1.0])
-        fpr, tpr, thr = roc_curve(self.epoch_labels_buff, -1 * self.epoch_dists_buff)
-
-        tpr_filtered = tpr[fpr <= 1e-6]
-        if len(tpr_filtered) == 0:
-            needed_tpr = 0.0
-        else:
-            needed_tpr = tpr_filtered[-1]
-
-        state.metrics.add_batch_value(metrics_dict={
-            self.prefix + "epoch-TPR@FPR=1e-06": needed_tpr,
-            self.prefix + "epoch-pos-frac": np.mean(self.epoch_labels_buff),
-            self.prefix + "epoch-Dist": mean_positive_dist,
-        })
+        # mean_positive_dist = np.mean(self.epoch_dists_buff[self.epoch_labels_buff == 1.0])
+        # fpr, tpr, thr = roc_curve(self.epoch_labels_buff, -1 * self.epoch_dists_buff)
+        #
+        # tpr_filtered = tpr[fpr <= 1e-6]
+        # if len(tpr_filtered) == 0:
+        #     needed_tpr = 0.0
+        # else:
+        #     needed_tpr = tpr_filtered[-1]
+        #
+        # state.metrics.add_batch_value(metrics_dict={
+        #     self.prefix + "epoch-TPR@FPR=1e-06": needed_tpr,
+        #     self.prefix + "epoch-pos-frac": np.mean(self.epoch_labels_buff),
+        #     self.prefix + "epoch-Dist": mean_positive_dist,
+        # })
+        pass

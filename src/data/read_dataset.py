@@ -132,6 +132,8 @@ def check_data_iteration(iterate_data=False):
                              is_val=is_val,
                              transform=preprocessing)
 
+
+
     print(f"Total triples in {'test' if is_val else 'train'} dataset is {len(dataset)}")
     if iterate_data:
         for i in range(len(dataset)):
@@ -147,4 +149,21 @@ def check_data_iteration(iterate_data=False):
 if __name__ == '__main__':
     # example usage
     # python -i read_dataset.py check_data_iteration
+
+    # example code
+    """
+    train_ds = FakeRNNMCSDataset(tracks_df_csv='data/raw/train_df.csv',
+                                 order_df_csv='data/raw/train_df_track_order_df.csv',
+                                 gt_csv='data/raw/train_gt_df.csv',
+                                 root_dir='data/raw/data',
+                                 is_val=False,
+                                 transform=preprocessing)
+
+    dev_ds = FakeRNNMCSDataset(tracks_df_csv='data/raw/train_df.csv',
+                               order_df_csv='data/raw/train_df_track_order_df.csv',
+                               gt_csv='data/raw/train_gt_df.csv',
+                               root_dir='data/raw/data',
+                               is_val=True,
+                               transform=preprocessing)
+    """
     check_data_iteration(iterate_data=True)
