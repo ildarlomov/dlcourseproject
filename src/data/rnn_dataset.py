@@ -55,8 +55,8 @@ class RNNMCSDataset(Dataset):
                     self.train_df.track_id == not_this_person_sampled_track_id].index.values
 
                 self.samples.append((anchor_idx, track_image_idxs, not_this_person_sampled_track_image_idxs))
-            if id > 100:
-                break
+            # if id > 100:
+            #     break
 
         self.root_dir = root_dir
         self.transform = transform
