@@ -26,7 +26,7 @@ def main(conf):
     )
     model = RNNTripletNet(embedding_rnn, pretrained=True, weights_path=conf.weights_path_lstm)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = model.to(device)
+    # model = model.to(device)
     model.eval()
 
     MEAN = [0.485, 0.456, 0.406]
