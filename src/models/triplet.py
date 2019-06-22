@@ -29,7 +29,8 @@ class RNNTripletNet(nn.Module):
         self.embeddingnet = embeddingnet
         if pretrained:
             if torch.cuda.is_available():
-                map_location = lambda storage, loc: storage.cuda()
+                # map_location = lambda storage, loc: storage.cuda()
+                map_location = 'cpu'
             else:
                 map_location = 'cpu'
             weights = torch.load(weights_path, map_location=map_location)
