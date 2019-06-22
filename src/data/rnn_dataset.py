@@ -36,7 +36,7 @@ class FinalRNNMCSDataset(Dataset):
         # 1 triplet sample for one person
         # this takes 10 minutes every run
         print('Generating dataset for evaluation')
-        for id, (track_id) in tqdm(self.test_df_track_order_df[['track_id']].iterrows(), total=len(self.test_df_track_order_df)):
+        for track_id in tqdm(self.test_df_track_order_df.track_id.values, total=len(self.test_df_track_order_df)):
             track_image_idxs = self.test_df[self.test_df.track_id == track_id].index.values
             self.samples.append((track_image_idxs))
         self.root_dir = root_dir
