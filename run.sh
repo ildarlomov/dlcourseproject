@@ -25,7 +25,7 @@ if [[ "$branch" == "leaderboard" ]];
         echo "Working with branch $branch"
         echo "In THEN"
         wget -O baseline_best.pth 'http://mcs2019-competition.visionlabs.ru/resnet_caffe_weights.pth'
-        wget -O best.pth  'https://www.dropbox.com/s/goizhyy5jggnklm/best.pth?dl=0'
+        wget -O best.pth  'https://www.dropbox.com/s/2kvpyl9vechytk1/best29.pth?dl=0'
 
         export CUDA_VISIBLE_DEVICES=0
         python3 descriptors_calculating.py \
