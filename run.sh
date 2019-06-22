@@ -12,8 +12,8 @@ export CUDA_VISIBLE_DEVICES=0
 #foo="Hello"
 #foo="$foo World"
 #echo $foo
-branch="local"
-#branch="leaderboard"
+#branch="local"
+branch="leaderboard"
 
 #python3 get_descriptors.py test_df.csv best.pth test_descriptors.npy data
 
