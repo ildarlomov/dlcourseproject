@@ -63,8 +63,8 @@ if __name__ == "__main__":
     )
 
     # todo: use maximal batch size for your gpu
-    train_dl = DataLoader(train_ds, batch_size=64, shuffle=True, num_workers=12, pin_memory=True, drop_last=False)
-    dev_dl = DataLoader(dev_ds, batch_size=64, shuffle=False, num_workers=12, pin_memory=True, drop_last=False)
+    train_dl = DataLoader(train_ds, batch_size=128, shuffle=True, num_workers=12, pin_memory=True, drop_last=False)
+    dev_dl = DataLoader(dev_ds, batch_size=128, shuffle=False, num_workers=12, pin_memory=True, drop_last=False)
 
     loaders = {"train": train_dl, "dev": dev_dl}
 

@@ -12,8 +12,8 @@ export CUDA_VISIBLE_DEVICES=0
 #foo="Hello"
 #foo="$foo World"
 #echo $foo
-branch="local"
-#branch="leaderboard"
+#branch="local"
+branch="leaderboard"
 
 #python3 get_descriptors.py test_df.csv best.pth test_descriptors.npy data
 
@@ -24,38 +24,45 @@ if [[ "$branch" == "leaderboard" ]];
     then
         echo "Working with branch $branch"
         echo "In THEN"
-        wget -O best.pth 'http://mcs2019-competition.visionlabs.ru/resnet_caffe_weights.pth'
+        wget -O baseline_best.pth 'http://mcs2019-competition.visionlabs.ru/resnet_caffe_weights.pth'
+        wget -O best.pth  'https://www.dropbox.com/s/goizhyy5jggnklm/best.pth?dl=0'
 
+        export CUDA_VISIBLE_DEVICES=0
         python3 descriptors_calculating.py \
                 --root_path data \
                 --df_path test_df.csv \
                 --descriptors_path test_descriptors.npy \
-                --weights_path best.pth
+                --weights_path baseline_best.pth
 
         python3 eval.py \
                 --test_df_path test_df.csv \
                 --track_order_df_path track_order_df.csv \
                 --test_descriptors_path test_descriptors.npy \
-                --agg_descriptors_path agg_descriptors.npy
+                --agg_descriptors_path agg_descriptors.npy \
+                --weights_path_lstm best.pth
 
     else
         echo "Working with branch $branch"
         echo "In ELSE"
-#        wget -O best.pth 'http://mcs2019-competition.visionlabs.ru/resnet_caffe_weights.pth'
+        export CUDA_VISIBLE_DEVICES=1
+#        wget -O baseline_best.pth 'http://mcs2019-competition.visionlabs.ru/resnet_caffe_weights.pth'
+#        wget -O best.pth  'https://www.dropbox.com/s/goizhyy5jggnklm/best.pth?dl=0'
 
-        python descriptors_calculating.py \
-            --root_path data/raw/data \
-            --df_path data/raw/train_df.csv \
-            --descriptors_path models/baseline/logs/6/descriptors.npy \
-            --weights_path models/baseline/logs/25/checkpoints/train.34.pth
-#            --weights_path best.pth
+#        python descriptors_calculating.py \
+#            --root_path data/raw/data \
+#            --df_path data/raw/train_df.csv \
+#            --descriptors_path models/baseline/logs/6/descriptors.npy \
+#            --weights_path baseline_best.pth
 
 
         python eval.py \
             --test_df_path data/raw/train_df.csv \
             --track_order_df_path data/raw/train_df_track_order_df.csv \
             --test_descriptors_path models/baseline/logs/6/descriptors.npy \
-            --agg_descriptors_path models/baseline/agg_descriptors.npy
+            --agg_descriptors_path models/baseline/agg_descriptors.npy \
+            --weights_path_lstm best.pth
+
+        echo "EVERYTHING IS GOOD!"
 
 	    python get_scores.py \
             --predicted_descr_path models/baseline/agg_descriptors.npy \

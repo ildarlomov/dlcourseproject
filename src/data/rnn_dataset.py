@@ -12,7 +12,57 @@ from tqdm import tqdm
 # Ignore warnings
 import warnings
 import torchvision as tv
+import pickle
 
+
+class FinalRNNMCSDataset(Dataset):
+
+    def __init__(
+            self,
+            test_df: str,
+            test_df_track_order_df,
+            test_descriptors_df,
+            root_dir,
+            transform=None
+    ):
+        """ Plan
+            1. for each track presented form 1 triplet with each of gt images vs one random negative track
+            and lets work with indices only
+        """
+        self.test_df = pd.read_csv(test_df)
+        self.test_df_track_order_df = pd.read_csv(test_df_track_order_df)
+        self.test_descriptors_npy = np.load(test_descriptors_df)
+        self.samples = list()
+        # 1 triplet sample for one person
+        # this takes 10 minutes every run
+        print('Generating dataset for evaluation')
+        for track_id in tqdm(self.test_df_track_order_df.track_id.values, total=len(self.test_df_track_order_df)):
+            track_image_idxs = self.test_df[self.test_df.track_id == track_id].index.values
+            self.samples.append((track_image_idxs))
+        self.root_dir = root_dir
+        self.transform = transform
+
+        print(f"Triplets count for final eval is {len(self.samples)}")
+        # Was Triplets count for train was 57570 when only one negative sample was used
+        # now it s 1151400 (20 times more)
+        # with open('train_samples.pkl', 'wb') as outf:
+        #     pickle.dump(self.samples, outf)
+
+    def __len__(self):
+        return len(self.samples)
+
+    def __getitem__(self, idx):
+        pos_images_idxs = self.samples[idx]
+        # todo: maybe add some scaling on all given descriptors
+        pos_seq = self.test_descriptors_npy[pos_images_idxs]
+
+        pos_seq = [torch.from_numpy(pos_img) for pos_img in pos_seq]
+
+        pos_seq = torch.stack(pos_seq, dim=0, out=None)
+
+        sample = {'img_seq': pos_seq}
+
+        return sample
 
 class RNNMCSDataset(Dataset):
 
@@ -44,30 +94,41 @@ class RNNMCSDataset(Dataset):
 
         self.samples = list()
         # 1 triplet sample for one person
-        print(f"Generating samples for {'dev' if is_val else 'train'}")
-        for id, (track_id, person_id) in tqdm(self.train_df_track_order_df[['track_id', 'person_id']].iterrows(), total=len(self.train_df_track_order_df)):
-            not_this_person_order_df = self.train_df_track_order_df[self.train_df_track_order_df.person_id != person_id]
-            track_image_idxs = self.train_df[self.train_df.track_id == track_id].index.values
-            track_anchors_df = self.train_gt_df[self.train_gt_df.person_id == person_id]
-            for anchor_idx in track_anchors_df.index.values:
-                not_this_person_sampled_track_id = not_this_person_order_df.sample(1).track_id.values[0]
-                not_this_person_sampled_track_image_idxs = self.train_df[
-                    self.train_df.track_id == not_this_person_sampled_track_id].index.values
+        # this takes 10 minutes every run
+        if is_val:
+            n_neg_samples = 1
+            print(f"Generating samples for {'dev' if is_val else 'train'}")
+            for id, (track_id, person_id) in tqdm(self.train_df_track_order_df[['track_id', 'person_id']].iterrows(), total=len(self.train_df_track_order_df)):
+                not_this_person_order_df = self.train_df_track_order_df[self.train_df_track_order_df.person_id != person_id]
+                track_image_idxs = self.train_df[self.train_df.track_id == track_id].index.values
+                track_anchors_df = self.train_gt_df[self.train_gt_df.person_id == person_id]
+                for anchor_idx in track_anchors_df.index.values:
+                    for not_this_person_sampled_track_id in tqdm(not_this_person_order_df.sample(n_neg_samples).track_id.values):
+                        not_this_person_sampled_track_image_idxs = self.train_df[
+                            self.train_df.track_id == not_this_person_sampled_track_id].index.values
 
-                self.samples.append((anchor_idx, track_image_idxs, not_this_person_sampled_track_image_idxs))
-            # if id > 100:
-            #     break
+                        self.samples.append((anchor_idx, track_image_idxs, not_this_person_sampled_track_image_idxs))
+                # if id > 10:
+                #     break
 
+
+        else:
+
+            with open('train_samples.pkl', 'rb') as inf:
+                self.samples = pickle.loads(inf.read())
         self.root_dir = root_dir
         self.transform = transform
 
         print(f"Triplets count for {'dev' if is_val else 'train'} is {len(self.samples)}")
+        # Was Triplets count for train was 57570 when only one negative sample was used
+        # now it s 1151400 (20 times more)
+        # with open('train_samples.pkl', 'wb') as outf:
+        #     pickle.dump(self.samples, outf)
 
     def __len__(self):
         return len(self.samples)
 
     def __getitem__(self, idx):
-
         gt_image_idx, pos_images_idxs, neg_images_idxs = self.samples[idx]
         # todo: maybe add some scaling on all given descriptors
         gt_descriptor = self.train_gt_descriptors[gt_image_idx]
