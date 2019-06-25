@@ -10,6 +10,8 @@ use_relu = False
 use_bn = True
 
 
+# todo: WHAT IS FUCKING WRONG WITH THIS FILE???
+
 def conv3x3(in_planes, out_planes, stride=1):
     "3x3 convolution with padding"
     global use_bn
@@ -86,12 +88,15 @@ class ResNetCaffe(nn.Module):
     Provided architecture and weigths for the Video Face Recognition Challenge@MCS2019
     '''
 
-    def __init__(self, layers, block=None, k=1, use_relu_=False, use_bn_=True, pretrained=False):
+    def __init__(self, layers, block=None, k=1, use_relu_=False, use_bn_=True, pretrained=False, weights_file=None):
         global use_relu
         use_relu = use_relu_
         global use_bn
         use_bn = use_bn_
         self.use_bn = use_bn
+        self.weights_file = weights_file
+        if pretrained and weights_file is None:
+            raise ValueError('Pls specify weights file')
         self.inplanes = round(32 * k)
         super(ResNetCaffe, self).__init__()
         self.conv1 = nn.Conv2d(3, round(32 * k), kernel_size=3, stride=1, padding=0,
@@ -122,7 +127,7 @@ class ResNetCaffe(nn.Module):
 
         if pretrained:
             # Put your path
-            weights = torch.load('/path/to/pretrained/weights.pth', map_location='cpu')
+            weights = torch.load(self.weights_file, map_location='cpu')
             self.load_state_dict(weights)
 
     def _make_layer(self, block, planes, blocks, stride=1):

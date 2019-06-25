@@ -81,19 +81,20 @@ class BasicBlock(nn.Module):
         return out
 
 
-class ResNetCaffe(nn.Module):
+class ResNetCaffeBody(nn.Module):
     '''
     Provided architecture and weigths for the Video Face Recognition Challenge@MCS2019
     '''
 
-    def __init__(self, layers, block=None, k=1, use_relu_=False, use_bn_=True, pretrained=False):
+    def __init__(self, layers, block=None, k=1, use_relu_=False, use_bn_=True, pretrained=False, weights_path=None):
         global use_relu
         use_relu = use_relu_
         global use_bn
         use_bn = use_bn_
         self.use_bn = use_bn
+        self.k = k
         self.inplanes = round(32 * k)
-        super(ResNetCaffe, self).__init__()
+        super(ResNetCaffeBody, self).__init__()
         self.conv1 = nn.Conv2d(3, round(32 * k), kernel_size=3, stride=1, padding=0,
                                bias=not use_bn)
 
@@ -113,16 +114,19 @@ class ResNetCaffe(nn.Module):
         self.layer2 = self._make_layer(block, round(128 * k), layers[1], stride=2)
         self.layer3 = self._make_layer(block, round(256 * k), layers[2], stride=2)
         self.layer4 = self._make_layer(block, round(512 * k), layers[3], stride=2)
-        self.fc = nn.Linear(round(12800 * k), 512, bias=True)
+        # self.fc = nn.Linear(round(12800 * k), 512, bias=True)
 
-        scale = calculate_scale(self.fc.weight.data)
-        torch.nn.init.uniform_(self.fc.weight.data, -scale, scale)
-        if self.fc.bias is not None:
-            self.fc.bias.data.zero_()
+        # scale = calculate_scale(self.fc.weight.data)
+        # torch.nn.init.uniform_(self.fc.weight.data, -scale, scale)
+        # if self.fc.bias is not None:
+        #     self.fc.bias.data.zero_()
 
         if pretrained:
             # Put your path
-            weights = torch.load('/path/to/pretrained/weights.pth', map_location='cpu')
+            weights = torch.load(weights_path, map_location='cpu')
+            # removing unexpected keys for funetuning
+            weights.pop("fc.weight", None)
+            weights.pop("fc.bias", None)
             self.load_state_dict(weights)
 
     def _make_layer(self, block, planes, blocks, stride=1):
@@ -160,12 +164,7 @@ class ResNetCaffe(nn.Module):
         x = self.layer4(x)
 
         x = x.view(x.size(0), -1)
-        x = self.fc(x)
+        # x = self.fc(x)
 
         return x
 
-
-def test():
-    model = ResNetCaffe([1, 2, 5, 3], BasicBlock, pretrained=True)
-    test_tensor = torch.rand(2, 3, 112, 112)
-    print(model(test_tensor).size())

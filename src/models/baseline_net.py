@@ -86,7 +86,7 @@ class ResNetCaffe(nn.Module):
     Provided architecture and weigths for the Video Face Recognition Challenge@MCS2019
     '''
 
-    def __init__(self, layers, block=None, k=1, use_relu_=False, use_bn_=True, pretrained=False):
+    def __init__(self, layers, block=None, k=1, use_relu_=False, use_bn_=True, pretrained=False, weights_path=None):
         global use_relu
         use_relu = use_relu_
         global use_bn
@@ -122,7 +122,7 @@ class ResNetCaffe(nn.Module):
 
         if pretrained:
             # Put your path
-            weights = torch.load('/path/to/pretrained/weights.pth', map_location='cpu')
+            weights = torch.load(weights_path, map_location='cpu')
             self.load_state_dict(weights)
 
     def _make_layer(self, block, planes, blocks, stride=1):
