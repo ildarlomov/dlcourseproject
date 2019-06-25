@@ -16,10 +16,10 @@ from dataset import ImageListDataset
 
 
 def main(conf):
-    # model = ResNetCaffe([1, 2, 5, 3], pretrained=True, weights_file=conf.weights_path)
-    emb_model = ResNetCaffeBody([1, 2, 5, 3], BasicBlock, pretrained=False, weights_path=None)
-    finetuned_model = ResNetCaffeFinetune(body_model=emb_model)
-    model = TripletNet(finetuned_model, pretrained=True, weights_path=conf.weights_path)
+    model = ResNetCaffe([1, 2, 5, 3], pretrained=True, weights_file=conf.weights_path)
+    # emb_model = ResNetCaffeBody([1, 2, 5, 3], BasicBlock, pretrained=False, weights_path=None)
+    # finetuned_model = ResNetCaffeFinetune(body_model=emb_model)
+    # model = TripletNet(finetuned_model, pretrained=True, weights_path=conf.weights_path)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = model.to(device)
     model.eval()
@@ -46,7 +46,7 @@ def main(conf):
     with torch.no_grad():
         for batch_idx, data in tqdm(enumerate(dataset_loader), total=len(dataset_loader)):
             data = data.to(device)
-            output = model.embeddingnet(data)
+            output = model(data)
             output = F.normalize(output, dim=1)
             output = output.detach().cpu().numpy()
             result_arr = np.vstack((result_arr, output))

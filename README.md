@@ -21,6 +21,20 @@ apt-get install -y libsm6 libxext6 libxrender-dev
 pip install opencv-python catalyst
 
 ```
+### What to do
+
+The competition is on overcoming accuracy of face verification problem by using short video tracks instead of single picture of a person.
+Data is presented in 10-frame sequences sampled uniformly throughout the video along with a number of person pictures.
+Evaluation is done automatically by sampling negative and positive pairs from the data, applying some algorithm to the sequences and calculating True Positive Rate at False Positive Rate equals 1e-10.
+
+### What was done
+
+1. I built this folder using my favourite template cookiecutter data science
+2. I've learnt how to make custom NN submissions by creating a number of scripts and get expected baseline results using my own weights from dropbox
+3. Then I tried to tune only the head layers using the triplet net model on triplets of images and did not get better TPR 
+4. Then I decided to use information from the sequences by tuning 1-layer LSTM model applied on top of sequences of baseline embeddings
+Here I did not use the original images but only baseline embeddings which rapidly increases the speed of training.
+
 
 
 Project Organization

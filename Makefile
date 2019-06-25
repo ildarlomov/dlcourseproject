@@ -94,14 +94,14 @@ push_reqs:
 
 run_train:
 	pip install -e .
-	CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python run_train.py
+	CUDA_VISIBLE_DEVICES=2,3,4,5,6,7 python run_train.py
 
 run_train_1:
 	pip install -e .
 	CUDA_VISIBLE_DEVICES=0 python run_train.py
 
 run_tb:
-	CUDA_VISIBLE_DEVICE="" tensorboard --logdir=./models/baseline/logs/25
+	CUDA_VISIBLE_DEVICE="" tensorboard --logdir=./models/baseline/logs/29
 
 get_descriptors:
 	CUDA_VISIBLE_DEVICES=7 python get_descriptors.py
@@ -114,6 +114,7 @@ build-submit:
 
 run-submit: build-submit
 	nvidia-docker  run  --shm-size 16G -e CUDA_VISIBLE_DEVICES=0 --rm -it --name mcs-submit-custom msc-submit:latest
+
 
 
 
