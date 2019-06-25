@@ -25,7 +25,8 @@ def main(conf):
         input_size=512
     )
     model = RNNTripletNet(embedding_rnn, pretrained=True, weights_path=conf.weights_path_lstm)
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cpu')
     model = model.to(device)
     model.eval()
 
